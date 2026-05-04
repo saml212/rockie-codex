@@ -9,7 +9,7 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "express": "^4.19.0"
+    "express": "^5.2.1"
   },
   "engines": {
     "node": ">=20"

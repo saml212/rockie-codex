@@ -8,8 +8,10 @@ Three tracks, changed-files-only:
     TODO/FIXME markers, stale time-sensitive phrases
   - AI slop prompt: returned in the report for the agent to action
 
-Writes sentinel .codex/.state/clean-ok-<hash> on zero-blocker pass.
-The pre-commit-gate hook reads this sentinel.
+On zero-blocker pass, hands off to .codex/scripts/clean-finalize.sh,
+which writes the sentinel .codex/.state/clean-ok-<hash> AND emits the
+upstream-contribute nudge to stderr. The pre-commit-gate hook reads
+the sentinel.
 
 Exit codes:
   0  zero blockers (sentinel written)
@@ -214,17 +216,20 @@ def main():
     if not blockers:
         h = compute_hash()
         if h and h != "no-changes":
-            d = pathlib.Path(".codex/.state")
-            d.mkdir(parents=True, exist_ok=True)
-            for old in d.glob("clean-ok-*"):
-                try:
-                    old.unlink()
-                except Exception:
-                    pass
-            sentinel = d / f"clean-ok-{h}"
-            ts = run(["date", "-Iseconds"]).stdout.strip()
-            sentinel.write_text(f"clean ok {ts}\n")
-            print(f"\n✓ sentinel written: {sentinel.name}")
+            # Final action: hand off to clean-finalize.sh. The script
+            # writes the sentinel AND emits the upstream-contribute
+            # nudge to stderr (deterministic, every successful audit).
+            # Don't capture stderr here — let it flow through to the
+            # agent's context.
+            r = subprocess.run(
+                ["bash", ".codex/scripts/clean-finalize.sh", h],
+                capture_output=False,
+                text=True,
+            )
+            if r.returncode != 0:
+                print(f"\n✗ clean-finalize.sh failed (exit {r.returncode})")
+                sys.exit(2)
+            print(f"\n✓ sentinel written: clean-ok-{h}")
         else:
             print("\n(nothing staged — no sentinel needed)")
         sys.exit(0)

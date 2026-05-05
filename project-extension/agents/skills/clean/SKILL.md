@@ -28,12 +28,16 @@ kind hurts. The audit covers both.
    - **Warnings** — should review (TODO markers pointing to resolved work,
      duplicate content across docs, rules contradicting `.codex/memory/workflow.db`)
    - **Info** — worth knowing (file size growth, complexity spikes)
-3. If zero blockers: the skill writes
-   `.codex/.state/clean-ok-<hash>` where `<hash>` is computed by
-   `.codex/scripts/compute_clean_hash.sh`. The pre-commit-gate hook
-   recomputes the same hash and requires the sentinel to exist.
-4. If blockers exist: the skill reports them and does NOT write a
-   sentinel. Agent fixes, reruns.
+3. If zero blockers: the audit invokes
+   `.codex/scripts/clean-finalize.sh <hash>` as its final action.
+   That script writes `.codex/.state/clean-ok-<hash>` (where
+   `<hash>` is computed by `.codex/scripts/compute_clean_hash.sh`)
+   AND prints the upstream-contribute nudge to stderr. The
+   pre-commit-gate hook recomputes the same hash and requires the
+   sentinel to exist.
+4. If blockers exist: the skill reports them and does NOT call
+   `clean-finalize.sh`, so no sentinel and no nudge. Agent fixes,
+   reruns.
 
 ## Hard rules for this repo specifically
 
@@ -74,25 +78,33 @@ report in human-readable form and wait for their direction on fixes.
 
 ## Post-audit hook
 
-After the sentinel writes successfully (zero blockers), surface a
-soft-prompt to the user — once per audit, never auto-invoked:
+The final action of `$clean` (zero-blocker path) is:
 
-> Audit clean. Anything in this session worth upstreaming to
-> `saml212/rockie-codex`? Run `$upstream-contribute` to scan the
-> session for generalizable patterns (pruning fixes, small skill
-> improvements, new hooks, cross-discipline capabilities) and dispatch
-> a writer sub-agent to fork, branch, smoke-test, and open a PR.
+```bash
+bash .codex/scripts/clean-finalize.sh <hash>
+```
 
-Rules for this nudge:
+`audit.py` already invokes this for the agent. The script:
 
-- Print only when the audit passes with zero blockers.
-- Print at most once per audit run; suppress on re-runs in the same
-  session.
-- Never auto-invoke `$upstream-contribute` — the user opts in by
-  invoking the skill explicitly. The meta-loop is user-driven, not
-  automatic.
-- If `[LEARN harness-upstream]` or `[LEARN cross-discipline]` rows
-  were added in the last 6 hours, prepend a one-line teaser noting
-  the count. (Optional polish; skip if querying the DB would slow
-  the audit.)
+1. Writes the audit sentinel at `.codex/.state/clean-ok-<hash>` in
+   the format `pre-commit-gate.sh` expects.
+2. Emits the upstream-contribute nudge to **stderr**. Per Codex CLI's
+   EVENT-MAPPING, stderr from hooks/scripts surfaces directly to the
+   agent's context — same model as Claude Code — so the nudge is
+   delivered every successful audit:
+
+   > [clean] audit clean. anything in this session worth upstreaming
+   > to `saml212/rockie-codex`? (skills, hooks, memory schema
+   > improvements, pruning patterns — anything generalizable across
+   > research domains). run `$upstream-contribute` to scan and
+   > propose. user-driven; never auto-pushes.
+
+The nudge is **not optional and not prose-only**. It is emitted by
+the script on every zero-blocker pass; the agent always sees it.
+The agent does **not** auto-invoke `$upstream-contribute` — the user
+opts in by invoking the skill explicitly. The meta-loop is
+user-driven.
+
+If a blocker is present, the audit exits non-zero before reaching
+`clean-finalize.sh`, so no sentinel is written and no nudge fires.
 

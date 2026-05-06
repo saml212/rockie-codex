@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .codex/hooks/session-report.sh"
+            "command": "bash $(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/session-report.sh"
           }
         ]
       }
@@ -15,11 +15,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .codex/hooks/learn-capture.sh"
+            "command": "bash $(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/learn-capture.sh"
           },
           {
             "type": "command",
-            "command": "bash .codex/hooks/deadend-capture.sh"
+            "command": "bash $(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/deadend-capture.sh"
           }
         ]
       }
@@ -29,27 +29,27 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .codex/hooks/correction-detect.sh"
+            "command": "bash $(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/correction-detect.sh"
           },
           {
             "type": "command",
-            "command": "bash .codex/hooks/load-relevant-rules.sh"
+            "command": "bash $(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/load-relevant-rules.sh"
           },
           {
             "type": "command",
-            "command": "bash .codex/hooks/load-relevant-deadends.sh"
+            "command": "bash $(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/load-relevant-deadends.sh"
           },
           {
             "type": "command",
-            "command": "bash .codex/hooks/stuck-detector.sh"
+            "command": "bash $(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/stuck-detector.sh"
           },
           {
             "type": "command",
-            "command": "bash .codex/hooks/stage-inject.sh"
+            "command": "bash $(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/stage-inject.sh"
           },
           {
             "type": "command",
-            "command": "bash .codex/hooks/budget-reconcile.sh"
+            "command": "bash $(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/budget-reconcile.sh"
           }
         ]
       }
@@ -60,7 +60,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .codex/hooks/doc-guard.sh"
+            "command": "bash $(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/doc-guard.sh"
           }
         ]
       },
@@ -69,15 +69,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .codex/hooks/pre-commit-gate.sh"
+            "command": "bash $(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/pre-commit-gate.sh"
           },
           {
             "type": "command",
-            "command": "bash .codex/hooks/pre-train-gate.sh"
+            "command": "bash $(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/pre-train-gate.sh"
           },
           {
             "type": "command",
-            "command": "bash .codex/hooks/budget-gate.sh"
+            "command": "bash $(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/budget-gate.sh"
           }
         ]
       }

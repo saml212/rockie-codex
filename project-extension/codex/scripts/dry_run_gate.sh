@@ -72,7 +72,7 @@ case "$cmd" in
     exit 2
     ;;
   list)
-    ls -la "$STATE" 2>/dev/null | grep -v '^total'
+    find "$STATE" -maxdepth 1 -mindepth 1 -printf '%TY-%Tm-%Td %TH:%TM %f\n' 2>/dev/null
     ;;
   *)
     echo "usage: $0 {register|check|list} [script]" >&2

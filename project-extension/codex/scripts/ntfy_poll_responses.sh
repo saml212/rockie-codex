@@ -16,8 +16,6 @@ if [ -z "$NTFY_TOPIC" ]; then
 fi
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CURSOR_FILE="$ROOT/memory/ntfy_last_seen"
-DB="$ROOT/memory/workflow.db"
-SQLITE=/usr/bin/sqlite3
 
 # Read cursor — Unix timestamp of last seen message (default: now, so first
 # call returns nothing and primes the cursor)

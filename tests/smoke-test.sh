@@ -421,7 +421,8 @@ cfg = json.loads(pathlib.Path(sys.argv[1], ".codex/hooks.json").read_text())
 assert cfg["version"] == 1, "top-level metadata clobbered"
 stop_cmds = [h["command"] for blk in cfg["hooks"].get("Stop", []) for h in blk.get("hooks", [])]
 assert "bash .codex/hooks/preexisting.sh" in stop_cmds, "pre-existing hook dropped"
-assert "bash .codex/hooks/learn-capture.sh" in stop_cmds, "rockie learn-capture not added"
+learn_capture_cmd = "bash $(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/learn-capture.sh"
+assert learn_capture_cmd in stop_cmds, "rockie learn-capture not added"
 PY
 rm -rf "$MERGE_TEST"
 
@@ -433,7 +434,7 @@ bash "$ROCKIE/install.sh" --project-only --yes "$IDEM" >/dev/null 2>&1
 COUNT=$(python3 -c '
 import json; d=json.load(open("'"$IDEM"'/.codex/hooks.json"))
 stop=[h["command"] for blk in d["hooks"].get("Stop", []) for h in blk.get("hooks", [])]
-print(stop.count("bash .codex/hooks/learn-capture.sh"))')
+print(stop.count("bash $(git rev-parse --show-toplevel 2>/dev/null || pwd)/.codex/hooks/learn-capture.sh"))')
 assert "installer is idempotent (no hook duplication on re-run)" "1" "$COUNT"
 rm -rf "$IDEM"
 
@@ -609,7 +610,6 @@ assert "router includes on-demand-only providers with --allow-on-demand" "0" "$T
 
 # T6: cost --json against a fake provider produces parseable JSON
 (cd "$ROCKIE" && python3 "$GPU_PY" cost --providers tests.fakes.ok --json >/tmp/gpu-t6.out 2>&1)
-T6_RC=$?
 T6_JSON_VALID=$(python3 -c "import json,sys; d=json.load(open('/tmp/gpu-t6.out')); print(1 if 'providers' in d and isinstance(d.get('providers'),list) else 0)" 2>/dev/null || echo 0)
 cleanup_fake_pods
 assert "cost --json returns parseable summary with providers list" "1" "$T6_JSON_VALID"

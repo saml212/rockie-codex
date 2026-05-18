@@ -93,7 +93,7 @@ if [ -f "$CONF" ]; then
     # launcher subshell (bash -c "$LAUNCHER_CMD") inherits PID_FILE /
     # LOG_FILE etc. as documented in autopilot.conf.example.
     printf -v "$key" '%s' "$val"
-    export "$key"
+    export "${key?}"
   done < "$CONF"
 fi
 # Also export the defaults set above, so launchers that read env vars

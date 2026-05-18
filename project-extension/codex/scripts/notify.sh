@@ -28,7 +28,6 @@ if [ -z "$NTFY_TOPIC" ]; then
 fi
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DB="$ROOT/memory/workflow.db"
-SQLITE=/usr/bin/sqlite3
 
 TIER="${1:-3}"
 TITLE="${2:-autopilot}"

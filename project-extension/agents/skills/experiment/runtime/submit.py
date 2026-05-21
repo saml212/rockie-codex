@@ -18,7 +18,7 @@ Usage::
               --script-file path.sh --timeout 14400
 
 CLI surface (argparse):
-- ``--gpu-type``    GPU type (A100_80GB | H100_SXM | H200 | B200). Required.
+- ``--gpu-type``    GPU type (A40_48GB | A100_80GB | H100_SXM | H200 | B200). Required.
 - ``--gpu-count``   Integer >= 1. Required.
 - ``--script-file`` Path to the bash script body. Required.
 - ``--timeout``     Job timeout in seconds. Required.
@@ -95,7 +95,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         description="Submit and tail a Pebble ML GPU job.",
     )
     p.add_argument("--gpu-type", required=True,
-                   choices=["A100_80GB", "H100_SXM", "H200", "B200"])
+                   choices=["A40_48GB", "A100_80GB", "H100_SXM", "H200", "B200"])
     p.add_argument("--gpu-count", required=True, type=int)
     p.add_argument("--script-file", required=True,
                    help="Path to the bash script body to run on the pod.")

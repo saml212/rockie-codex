@@ -1,14 +1,15 @@
 ---
 name: gpu-spend
-description: When the user (or you) needs to know GPU spend across configured providers — "what's my burn rate?", "how much have I spent this week?", "is anything still running?", "am I close to budget?", "what's running idle?" — invoke this. Wraps `gpu.py cost --json` (cross-provider router) for accurate, reconciled numbers, then summarizes plus prints each provider's billing-page URL so the user can verify against the real billing UI in one click. ALWAYS prefer this over `runpod.py cost` or per-provider CLIs when reporting spend; the cross-provider router is the only surface that sees every dollar. **Custom-mode users:** if `ROCKIE_GPU_MODE=custom`, invoke `/gpu-custom` instead — `gpu.py cost` will exit with a bypass message in that mode.
+description: When the user (or you) needs to know GPU spend — "what's my burn rate?", "how much have I spent this week?", "is anything still running?", "am I close to budget?", "what's running idle?" — invoke this. Wraps `rockie-gpu spent --json` (the deidentified Rockie-GPU spend surface) for accurate, reconciled numbers, then summarizes for the user. `rockie-gpu` is the single GPU surface: it never names the underlying compute supplier and never exposes a supplier API key. **Custom-mode users:** if `ROCKIE_GPU_MODE=custom`, invoke `/gpu-custom` instead — `rockie-gpu` is bypassed in that mode.
 ---
 
-# /gpu-spend — cross-provider GPU spend snapshot
+# /gpu-spend — Rockie-GPU spend snapshot
 
 The single source of truth for "what is the agent costing me right now?"
-Reconciles live state against `gpu_pods.accrued_dollars`, sums into
-`budget_usage[project:<p>:dollars]`, and prints both the LLM-readable
-JSON and the human view with billing URLs.
+`rockie-gpu spent` reconciles live state, sums project spend, and prints
+both the LLM-readable JSON and a human view — all under Rockie's own
+deidentified billing surface, with no supplier names and no supplier
+billing URLs leaking through.
 
 ## When to invoke
 
@@ -26,60 +27,56 @@ showing off. The hook keeps the budget honest in the background.
 
 Runs:
 ```bash
-python3 .codex/scripts/gpu.py cost --json
+rockie-gpu spent --json
 ```
 
-Output shape (LLM-ergonomic):
+Output shape (LLM-ergonomic, deidentified — Rockie-priced, no supplier
+names):
 ```json
 {
   "project": "...",
-  "providers": [
-    { "provider": "runpod", "compute_per_hr": 0.0, "storage_per_hr": 0.011,
-      "cumulative_usd": 2.20, "running_pods": 0, "idle_volume_gb": 80,
-      "billing_url": "https://...", "total_per_hr": 0.011 },
-    ...
-  ],
+  "compute_per_hr": 0.0,
+  "storage_per_hr": 0.011,
+  "running_pods": 0,
+  "idle_volume_gb": 80,
   "grand_total_per_hr": 0.011,
   "grand_cumulative_usd": 2.20
 }
 ```
 
 Read the JSON. Synthesize a 2–3 line summary for the user that:
-- Names the top spend driver (provider × compute or storage).
+- Names the top spend driver (compute or storage).
 - Calls out idle storage if `running_pods=0` but `idle_volume_gb > 0`
-  (user is paying for nothing — recommend `gpu.py terminate`).
-- Surfaces the billing URL of any provider with non-zero cumulative
-  spend so the user can cross-check.
+  (user is paying for nothing — recommend tearing the pod down).
 - Compares `grand_cumulative_usd` to budget ceiling if known
-  (`python3 .codex/scripts/budget.py status` shows the ceiling).
+  (`rockie-gpu spent --json` reports the ceiling when one is configured).
 
 ## Composition
 
-- **`gpu.py reconcile`** runs implicitly inside `cost`, so numbers are
-  always fresh (within seconds of the call). Don't reconcile separately.
-- **`budget.py status`** shows the dollars ceiling vs. accrued. If
-  cumulative is approaching the ceiling, surface a warning.
-- **`/runpod`** and **`/vast`** skills wrap the per-provider native
-  CLIs for deeper drill-downs (e.g. RunPod has a unique per-pod
-  billing CLI). Use them only after `gpu-spend` to investigate a
-  specific provider's contribution.
+- **`rockie-gpu spent`** reconciles implicitly, so numbers are always
+  fresh (within seconds of the call). No separate reconcile step.
+- **`rockie-gpu audit-open-spend --demo-safe`** is the line-item audit
+  when the user wants the full breakdown of where the dollars went — it
+  is the only drill-down surface. There is no per-supplier CLI to reach
+  for; `rockie-gpu` sees every dollar.
 
 ## Agent invocation template
 
 ```
-Run `python3 .codex/scripts/gpu.py cost --json`. Read the JSON.
+Run `rockie-gpu spent --json`. Read the JSON.
 Summarize in 2-3 lines:
-1. Top spend driver (which provider, compute or storage).
+1. Top spend driver (compute or storage).
 2. Idle storage warning if any.
-3. Cumulative-vs-ceiling status (call `budget.py status` if needed).
-End with the relevant billing URL(s). No more than 6 lines total.
+3. Cumulative-vs-ceiling status.
+For a full breakdown, run `rockie-gpu audit-open-spend --demo-safe`.
+No more than 6 lines total.
 ```
 
 ## Why JSON, not the human table
 
-The human `gpu.py cost` (no flag) is for users; LLMs should always read
-`--json` because:
+The human `rockie-gpu spent` (no flag) is for users; LLMs should always
+read `--json` because:
 - Stable shape across versions; the table prettifies and may break parsers.
 - Rates as floats, not strings — you can compare directly.
-- `billing_url` and `cumulative_usd` are first-class fields, not
+- `grand_cumulative_usd` and the rate fields are first-class, not
   buried in formatted output.

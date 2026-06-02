@@ -1,45 +1,38 @@
 #!/usr/bin/env python3
-"""gpu.py — multi-provider GPU router for rockie.
+"""gpu.py — GPU pod router for rockie.
 
-The "tool" the agent reaches for when it needs a GPU. Same verbs as
-runpod.py but iterates every configured provider:
+The "tool" the agent reaches for when it needs a GPU. Iterates every
+configured adapter behind a single set of verbs:
 
-  auth         — probe each provider's API for liveness
-  list-gpus    — aggregate type catalog across providers (deduped, tagged)
-  price        — side-by-side cheapest spot bid + on-demand per provider
-  create       — ranked spot fallback (runpod → vast → prime), with
-                 cooldown filter from preemption_events. On-demand-only
-                 providers join only with --allow-on-demand (none configured
-                 by default; the rank slot stays for future additions).
-  list-pods    — aggregate. tags each pod with its provider.
+  auth         — probe each configured adapter's API for liveness
+  list-gpus    — aggregate type catalog across adapters (deduped, tagged)
+  price        — side-by-side cheapest spot bid + on-demand per adapter
+  create       — ranked spot fallback across adapters, with cooldown
+                 filter from preemption_events. On-demand-only adapters
+                 join only with --allow-on-demand.
+  list-pods    — aggregate. tags each pod with its adapter.
   get-pod / stop / terminate / resume — need --provider since pod-ids
                  aren't globally unique.
-  cost [--json] — per-provider live rate + cumulative + grand total.
+  cost [--json] — per-adapter live rate + cumulative + grand total.
                  --json is the LLM-ergonomic surface.
-  reconcile    — cross-provider: read live state, recompute per-pod
-                 accrued spend, SUM into budget_usage[project:<p>:dollars].
-                 The mechanism the dollars ceiling depends on.
+  reconcile    — read live state, recompute per-pod accrued spend, SUM
+                 into budget_usage[project:<p>:dollars]. The mechanism
+                 the dollars ceiling depends on.
 
-Provider discovery (in priority order, ranked for spot fallback):
-  1. RunPod      — env: RUNPOD_API_KEY
-  2. Vast.ai     — env: VAST_API_KEY
-  3. Prime       — env: PRIME_API_KEY (+ PRIME_SSH_KEY_ID for create)
+Compute-supplier selection now lives behind the deidentified `rockie-gpu`
+broker (the single GPU surface agents reach for — see the gpu-spend and
+inference-engineer skills). This script ships with NO named suppliers in
+its default rank; the registry and DEFAULT_SPOT_RANK are empty. The
+adapter machinery stays in place for private/self-hosted use.
 
-(Shadeform was previously included as on-demand fallback; dropped
-2026-04-27 — see docs/_internal/market-research/SYNTHESIS.md. The
-on-demand-fallback rank stays in the architecture for future
-on-demand-only providers; it's just empty by default now.)
-
-Override the discovery with --providers <name,name,...> (also accepts
-dotted module paths like tests.fakes.fake_a for testing). Empty
-selection means "every provider whose env var is set, in default
-rank."
+Inject an adapter with --providers <dotted.module.path> (e.g.
+tests.fakes.fake_a for testing, or a privately-maintained adapter
+module). With an empty default rank, an empty selection resolves to no
+adapters.
 
 Budget invariant: this is the ONLY code path that writes to
-budget_usage.dollars across providers. scripts/runpod.py's older
-single-provider reconcile is preserved for now (will be thinned in
-a follow-up); both write the same SUM(gpu_pods.accrued_dollars)
-formula so they're consistent.
+budget_usage.dollars. The reconcile verb writes the
+SUM(gpu_pods.accrued_dollars) formula the dollars ceiling depends on.
 """
 from __future__ import annotations
 
@@ -77,12 +70,10 @@ from providers.base import (  # noqa: E402
 DB_PATH = _HERE.parent / "memory" / "workflow.db"
 STATE_DIR = _HERE.parent / ".state"
 
-# Spot-tier providers, ranked. On-demand-only providers join only
-# when --allow-on-demand is set; the list is empty by default since
-# Shadeform was dropped (no spot, redundant upstream coverage; see
-# docs/_internal/market-research/SYNTHESIS.md). Future on-demand-only
-# providers (Lambda direct, Foundry, etc.) would slot in here.
-DEFAULT_SPOT_RANK = ["runpod", "vast", "datacrunch", "prime"]
+# Compute-supplier selection moved behind the deidentified `rockie-gpu`
+# broker (the single GPU surface). No named suppliers ship in the default
+# rank; inject a private adapter via --providers <dotted.module.path>.
+DEFAULT_SPOT_RANK: list[str] = []
 ON_DEMAND_FALLBACK: list[str] = []
 
 # Cooldown window for preemption_events: a (provider, gpu_type) pair
@@ -95,13 +86,11 @@ STORAGE_RATE_PER_GB_HR = 0.10 / 30 / 24  # ≈ $0.000139/GB/hr (best-effort)
 # ─── Provider discovery ────────────────────────────────────────────────────
 
 
-_PROVIDER_REGISTRY: dict[str, tuple[str, str, str]] = {
-    # name  → (env_var_required, module_path, class_name)
-    "runpod":      ("RUNPOD_API_KEY",        "providers.runpod",         "RunPodProvider"),
-    "vast":        ("VAST_API_KEY",          "providers.vast",           "VastProvider"),
-    "prime":       ("PRIME_API_KEY",         "providers.primeintellect", "PrimeProvider"),
-    "datacrunch":  ("DATACRUNCH_CLIENT_ID",  "providers.datacrunch",     "DataCrunchProvider"),
-}
+# name → (env_var_required, module_path, class_name). Empty by default:
+# named compute suppliers are no longer wired here — selection lives behind
+# the deidentified `rockie-gpu` broker. A private deployment can register
+# its own adapter, or inject one ad-hoc via --providers <dotted.module.path>.
+_PROVIDER_REGISTRY: dict[str, tuple[str, str, str]] = {}
 
 
 def _instantiate(name_or_path: str) -> Provider | None:
@@ -407,7 +396,7 @@ def reconcile_all(providers: list[Provider], *, verbose: bool = False) -> dict[s
 def cmd_auth(args) -> int:
     providers = discover_providers(args.providers)
     if not providers:
-        print("[gpu] no providers configured. Set RUNPOD_API_KEY / VAST_API_KEY / etc. in .env", file=sys.stderr)
+        print("[gpu] no adapters configured. GPU operations route through `rockie-gpu`; inject a private adapter with --providers <dotted.module.path>.", file=sys.stderr)
         return 2
     fail = 0
     for p in providers:
@@ -834,7 +823,7 @@ def cmd_dashboard(args) -> int:
 
     # Per-provider rows
     if not provider_rows:
-        print("│" + "  (no providers configured — set RUNPOD_API_KEY / VAST_API_KEY in .env)".ljust(box_w - 2) + "│")
+        print("│" + "  (no adapters configured — GPU ops route through `rockie-gpu`)".ljust(box_w - 2) + "│")
     for r in provider_rows:
         if "error" in r:
             line = f"  ✗ {r['provider']:10} ERROR: {r['error'][:40]}"

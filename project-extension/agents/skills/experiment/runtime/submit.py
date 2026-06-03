@@ -23,7 +23,7 @@ CLI surface (argparse):
 - ``--script-file`` Path to the bash script body. Required.
 - ``--timeout``     Job timeout in seconds. Required.
 - ``--tenant-id``   Override env-driven tenant id.
-- ``--region``      Optional RunPod region.
+- ``--region``      Optional GPU region.
 - ``--env``         Repeatable ``KEY=VALUE`` for the job env.
 - ``--api-url``     Override ``ROCKIELAB_API_URL``.
 - ``--no-poll``     Submit and exit; don't poll.

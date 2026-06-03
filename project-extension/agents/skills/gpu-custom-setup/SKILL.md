@@ -1,11 +1,11 @@
 ---
 name: gpu-custom-setup
-description: One-time onboarding flow for users who set ROCKIE_GPU_MODE=custom (i.e., they have their own GPU setup — own AWS account, on-prem cluster, SSH tunnel to a workstation, university HPC, custom orchestration — instead of using rockie's RunPod/Vast/Prime/Verda router). Trigger this when (1) the user mentions GPU/training/provisioning, (2) `echo $ROCKIE_GPU_MODE` returns `custom`, AND (3) `.codex/gpu-custom.md` doesn't exist or is empty. Walks the user through their auth/provision/connect/monitor/terminate flow and saves it to .codex/gpu-custom.md so future agent sessions reuse the saved flow without re-asking. Run this AT MOST ONCE per project.
+description: One-time onboarding flow for users who set ROCKIE_GPU_MODE=custom (i.e., they have their own GPU setup — own AWS account, on-prem cluster, SSH tunnel to a workstation, university HPC, custom orchestration — instead of using Rockie's deidentified GPU router). Trigger this when (1) the user mentions GPU/training/provisioning, (2) `echo $ROCKIE_GPU_MODE` returns `custom`, AND (3) `.codex/gpu-custom.md` doesn't exist or is empty. Walks the user through their auth/provision/connect/monitor/terminate flow and saves it to .codex/gpu-custom.md so future agent sessions reuse the saved flow without re-asking. Run this AT MOST ONCE per project.
 ---
 
 # /gpu-custom-setup — onboard a user with their own GPU setup
 
-rockie's default GPU layer is the cross-provider router (`gpu.py`).
+Rockie's default GPU layer is the deidentified GPU router (`gpu.py`).
 But some users have their own setup they prefer to drive themselves —
 their own AWS account, on-prem cluster, university HPC quota, custom
 SSH tunnel, etc. They opt out by setting `ROCKIE_GPU_MODE=custom`,
@@ -157,7 +157,7 @@ leisure — but don't block on those answers.
 
 - Don't run any of the user's pasted commands during onboarding —
   this is information capture, not execution.
-- Don't add rockie's RunPod/Vast/Prime opinions into the saved
+- Don't add Rockie's GPU-router opinions into the saved
   file. Custom mode means custom; respect their setup.
 - Don't try to "wire up" their setup to `budget.py` automatically.
   Mention budget integration as an optional next step they can pursue

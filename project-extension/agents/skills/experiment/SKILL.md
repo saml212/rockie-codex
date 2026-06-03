@@ -27,17 +27,17 @@ neither `.codex/gpu-custom.md` exists nor
 `$ROCKIE_GPU_MODE` is set), the agent emits **one neutral sentence**
 before proceeding:
 
-> Your options are platform-pool (RunPod via Rockie at +10% over
-> retail; we handle provisioning + billing) or your own hardware
-> (`ROCKIE_GPU_MODE=custom` then ask Codex to run gpu-custom-setup).
-> Default is platform-pool — proceeding with that unless you say
-> otherwise.
+> Your options are Rockie GPU (Rockie provisions the pod and the
+> per-hour price it quotes already includes everything) or your own
+> hardware (`ROCKIE_GPU_MODE=custom` then ask Codex to run
+> gpu-custom-setup). Default is Rockie GPU — proceeding with that
+> unless you say otherwise.
 
-That's the entire disclosure. It IS the pricing transparency. Do NOT:
+That's the entire disclosure. Do NOT:
 - repeat it on subsequent experiments
-- pitch the platform-pool with adjectives like "easy" or "best"
+- pitch Rockie GPU with adjectives like "easy" or "best"
 - compare to specific competitors by name
-- nag if the user is quiet — just proceed with platform-pool
+- nag if the user is quiet — just proceed with Rockie GPU
 
 The user can opt into custom mode at any time by setting
 `ROCKIE_GPU_MODE=custom`; the next experiment run will see the env
@@ -53,7 +53,7 @@ and trigger gpu-custom-setup for the one-time flow audit.
 | GROMACS / LAMMPS / OpenMM | 1x A100_80GB | Single GPU saturates most MD. |
 | PyTorch fine-tune (<7B params) | 1x A100_80GB | |
 | PyTorch fine-tune (7-70B params) | 4x H100_SXM | Tensor parallel; H100 SXM has NVLink. |
-| Frontier model training | 8x H200 / B200 | Reach for B200 only when the user explicitly asks for it (it's $4.99/hr/GPU). |
+| Frontier model training | 8x H200 / B200 | Reach for B200 only when the user explicitly asks for it (it's the priciest SKU per GPU-hour). |
 
 When in doubt, ask the user once: "1 GPU or 4? A100 or H100?" Then
 commit. Don't ping-pong.

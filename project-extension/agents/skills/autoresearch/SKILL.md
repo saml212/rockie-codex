@@ -128,7 +128,7 @@ already provide:
   forward.
 - `experiments` tree — parent/child journal lets you bisect your own
   research lineage.
-- Multi-provider GPU procurement (RunPod, Vast, Datacrunch, Prime).
+- GPU procurement through Rockie's deidentified capacity market.
   Karpathy assumes one GPU on the desk.
 
 ## Procedure

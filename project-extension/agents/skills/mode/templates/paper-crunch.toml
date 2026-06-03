@@ -5,7 +5,6 @@ name = "paper-crunch"
 description = "Deadline-locked. Scope-locked. Smoke + audit gates active. Opus on attack/review."
 
 [hardware]
-preferred_provider = "runpod"
 hardware_type = "H100"
 spot_only = true
 on_demand_allowed = false

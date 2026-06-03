@@ -53,7 +53,6 @@ name = "<slug>"
 description = "<one sentence>"
 
 [hardware]
-preferred_provider = "runpod" | "vast" | "prime" | "verda"
 hardware_type = "H100" | "A100" | "H200"
 spot_only = true
 on_demand_allowed = false
@@ -123,12 +122,12 @@ Disk corpus is never modified by mode switches. Switching is cheap.
   `[hardware]`) — section is ignored silently. Run `/mode show` to
   see what got loaded; mismatches between expected schema and parsed
   shape are flagged with WARN.
-- Mode references provider not configured (`preferred_provider =
-  "vast"` but VAST_API_KEY unset) — SessionStart conflict-detection
-  warns; agent should propose `gpu.py auth vast` before relying on
-  it.
+- Mode sets `spot_only = true` but the requested SKU has no spot
+  capacity right now — SessionStart conflict-detection warns; the
+  agent should re-check availability via `rockie-gpu market` or relax
+  `spot_only` before relying on it.
 - Mode says `spot_only = true` but `ROCKIE_GPU_MODE = none` —
-  WARN: the GPU provider layer is disabled.
+  WARN: the Rockie GPU layer is disabled.
 
 ## Agent invocation protocol
 

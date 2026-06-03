@@ -1,6 +1,6 @@
 ---
 name: gpu-custom
-description: Runtime skill for users in ROCKIE_GPU_MODE=custom — invoked when the user (or agent) needs to do anything GPU-related (provision, connect, check status, check cost, terminate) in a project where rockie's cross-provider router is bypassed in favor of the user's own setup. Reads `.codex/gpu-custom.md` (populated by /gpu-custom-setup) for the user's documented flow and follows it. Replaces /runpod, /vast, /prime, /datacrunch, and /gpu-spend in custom mode — those skills route to gpu.py which exits gracefully when ROCKIE_GPU_MODE is not 'router'. If `.codex/gpu-custom.md` doesn't exist, redirect to /gpu-custom-setup first.
+description: Runtime skill for users in ROCKIE_GPU_MODE=custom — invoked when the user (or agent) needs to do anything GPU-related (provision, connect, check status, check cost, terminate) in a project where Rockie's GPU router is bypassed in favor of the user's own setup. Reads `.codex/gpu-custom.md` (populated by /gpu-custom-setup) for the user's documented flow and follows it. Replaces the deidentified `rockie-gpu` surface and /gpu-spend in custom mode — those route to gpu.py which exits gracefully when ROCKIE_GPU_MODE is not 'router'. If `.codex/gpu-custom.md` doesn't exist, redirect to /gpu-custom-setup first.
 ---
 
 # /gpu-custom — runtime GPU operations in custom mode
@@ -19,7 +19,7 @@ This skill is the agent's gateway to that flow.
 case "${ROCKIE_GPU_MODE:-router}" in
   custom) ;;  # ok, proceed
   router)
-    echo "[gpu-custom] ROCKIE_GPU_MODE=router — use /gpu-spend, /runpod, /vast, etc. instead"
+    echo "[gpu-custom] ROCKIE_GPU_MODE=router — use rockie-gpu / /gpu-spend instead"
     exit 0 ;;
   *) echo "[gpu-custom] ROCKIE_GPU_MODE=${ROCKIE_GPU_MODE} — not custom; nothing to do"; exit 0 ;;
 esac

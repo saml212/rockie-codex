@@ -80,7 +80,7 @@ SQL
 
 if [ -n "$RESULTS" ]; then
   echo "[load-relevant-deadends] This project has killed directions that overlap your prompt. Check before re-proposing:"
-  echo "$RESULTS" | sed 's/^/  /'
+  printf '%s\n' "$RESULTS" | sed 's/^/  /'
 fi
 
 exit 0

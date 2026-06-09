@@ -37,7 +37,7 @@ SECTION=$(awk -v want="$STAGE" '
 
 if [ -n "$SECTION" ]; then
   echo "[stage-inject] Active stage: $STAGE — context specific to this stage:"
-  echo "$SECTION" | sed 's/^/  /'
+  printf '%s\n' "$SECTION" | sed 's/^/  /'
 fi
 
 exit 0

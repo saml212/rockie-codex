@@ -26,13 +26,13 @@ esac
 
 REPO=$(git -C "$(dirname "$FILE_PATH")" rev-parse --show-toplevel 2>/dev/null)
 [ -z "$REPO" ] && exit 0
-REL=${FILE_PATH#$REPO/}
+REL=${FILE_PATH#"$REPO"/}
 
 echo "[$(date -Iseconds)] doc-guard: $TOOL on $REL" >> "$ROOT/memory/hook.log"
 
 if [ ! -f "$FILE_PATH" ]; then
   # New .md file — nudge
-  EXISTING=$(cd "$REPO" && ls -1 *.md 2>/dev/null | head -12 | tr '\n' ' ')
+  EXISTING=$(find "$REPO" -maxdepth 1 -type f -name '*.md' -exec basename {} \; 2>/dev/null | head -12 | tr '\n' ' ')
   {
     echo "[doc-guard] About to CREATE new .md: $REL"
     echo "[doc-guard] Repo rule: consolidate into existing docs first. New files are slop unless truly novel."

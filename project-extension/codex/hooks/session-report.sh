@@ -30,6 +30,7 @@ echo "[$(date -Iseconds)] session-report: fired" >> "$ROOT/memory/hook.log"
 # Load .env so session_report.py sees GPU_API_KEY etc.
 if [ -f "$REPO/.env" ]; then
   set -a
+  # shellcheck source=/dev/null
   . "$REPO/.env" 2>/dev/null
   set +a
 fi

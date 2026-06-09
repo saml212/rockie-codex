@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2015
 # rockie-codex smoke test — dogfoods the full harness in a throwaway dir.
 #
 # Covers:
@@ -298,10 +299,12 @@ echo "AGENT_DONE" | python3 "$PROJ/.codex/scripts/convergence.py" - >/dev/null
 assert "convergence: AGENT_DONE detected" "0" "$?"
 
 echo "still thinking" | python3 "$PROJ/.codex/scripts/convergence.py" - >/dev/null 2>&1
-[ "$?" -eq 1 ] && ok "convergence: no token returns exit 1" || fail "convergence: false positive"
+CONV_RC=$?
+[ "$CONV_RC" -eq 1 ] && ok "convergence: no token returns exit 1" || fail "convergence: false positive"
 
 echo "we're not done yet" | python3 "$PROJ/.codex/scripts/convergence.py" - >/dev/null 2>&1
-[ "$?" -eq 1 ] && ok "convergence: 'not done' does not false-positive" || fail "convergence: false positive 'not done'"
+CONV_RC=$?
+[ "$CONV_RC" -eq 1 ] && ok "convergence: 'not done' does not false-positive" || fail "convergence: false positive 'not done'"
 
 # ── 12. apply_patch SEARCH/REPLACE ───────────────────────────────────────
 section "apply_patch"
@@ -330,7 +333,8 @@ replacement
 >>>>>>> REPLACE
 PATCH
 python3 "$PROJ/.codex/scripts/apply_patch.py" < "$WORK/patch.bad" >/dev/null 2>&1
-[ "$?" -ne 0 ] && ok "apply_patch: rejects when SEARCH not found" || fail "apply_patch: should reject missing SEARCH"
+PATCH_RC=$?
+[ "$PATCH_RC" -ne 0 ] && ok "apply_patch: rejects when SEARCH not found" || fail "apply_patch: should reject missing SEARCH"
 
 # Path traversal — apply_patch must refuse absolute paths and '..' escapes.
 mkdir -p "$WORK/proj-dir" && echo "victim" > "$WORK/victim.txt"
@@ -421,7 +425,7 @@ cfg = json.loads(pathlib.Path(sys.argv[1], ".codex/hooks.json").read_text())
 assert cfg["version"] == 1, "top-level metadata clobbered"
 stop_cmds = [h["command"] for blk in cfg["hooks"].get("Stop", []) for h in blk.get("hooks", [])]
 assert "bash .codex/hooks/preexisting.sh" in stop_cmds, "pre-existing hook dropped"
-assert "bash .codex/hooks/learn-capture.sh" in stop_cmds, "rockie learn-capture not added"
+assert any(cmd.endswith(".codex/hooks/learn-capture.sh") for cmd in stop_cmds), "rockie learn-capture not added"
 PY
 rm -rf "$MERGE_TEST"
 
@@ -433,7 +437,7 @@ bash "$ROCKIE/install.sh" --project-only --yes "$IDEM" >/dev/null 2>&1
 COUNT=$(python3 -c '
 import json; d=json.load(open("'"$IDEM"'/.codex/hooks.json"))
 stop=[h["command"] for blk in d["hooks"].get("Stop", []) for h in blk.get("hooks", [])]
-print(stop.count("bash .codex/hooks/learn-capture.sh"))')
+print(sum(cmd.endswith(".codex/hooks/learn-capture.sh") for cmd in stop))')
 assert "installer is idempotent (no hook duplication on re-run)" "1" "$COUNT"
 rm -rf "$IDEM"
 
@@ -471,12 +475,14 @@ bash "$PROJ/.codex/scripts/dry_run_gate.sh" register "$PROJ/src-py311/train.py" 
 echo "edited" >> "$PROJ/src-py311/train.py"   # invalidate sentinel
 IN=$(python3 -c "import json;print(json.dumps({'tool_input':{'command':'python3.11 src-py311/train.py','cwd':'$PROJ'}}))")
 echo "$IN" | bash "$PROJ/.codex/hooks/pre-train-gate.sh" >/dev/null 2>&1
-[ "$?" -eq 2 ] && ok "pre-train-gate: python3.11 is recognized as training (no longer bypass)" || fail "pre-train-gate: python3.11 slipped through"
+TRAIN_RC=$?
+[ "$TRAIN_RC" -eq 2 ] && ok "pre-train-gate: python3.11 is recognized as training (no longer bypass)" || fail "pre-train-gate: python3.11 slipped through"
 
 # Bypass attempt 2: shell comment `# --smoke` should NOT count as smoke exception
 IN=$(python3 -c "import json;print(json.dumps({'tool_input':{'command':'python3 src-py311/train.py  # --smoke','cwd':'$PROJ'}}))")
 echo "$IN" | bash "$PROJ/.codex/hooks/pre-train-gate.sh" >/dev/null 2>&1
-[ "$?" -eq 2 ] && ok "pre-train-gate: '# --smoke' comment no longer bypass" || fail "pre-train-gate: comment bypass still works"
+TRAIN_RC=$?
+[ "$TRAIN_RC" -eq 2 ] && ok "pre-train-gate: '# --smoke' comment no longer bypass" || fail "pre-train-gate: comment bypass still works"
 
 section "schema migration walker"
 MGT=$(mktemp -d -t rockie-migration-XXXXXX)
@@ -612,6 +618,7 @@ assert "router includes on-demand-only providers with --allow-on-demand" "0" "$T
 T6_RC=$?
 T6_JSON_VALID=$(python3 -c "import json,sys; d=json.load(open('/tmp/gpu-t6.out')); print(1 if 'providers' in d and isinstance(d.get('providers'),list) else 0)" 2>/dev/null || echo 0)
 cleanup_fake_pods
+assert "cost --json exits cleanly" "0" "$T6_RC"
 assert "cost --json returns parseable summary with providers list" "1" "$T6_JSON_VALID"
 
 section "FTS5 hyphen sanitization"

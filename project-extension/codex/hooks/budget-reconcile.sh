@@ -21,6 +21,7 @@ LAST_FILE="$STATE_DIR/last_reconcile_ts"
 # Source .env so the compute credential is visible to the Python script.
 if [ -f "$REPO/.env" ]; then
   set -a
+  # shellcheck source=/dev/null
   . "$REPO/.env" 2>/dev/null
   set +a
 fi

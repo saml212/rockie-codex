@@ -172,7 +172,7 @@ merge_hooks_json "$ROOT/project-extension/codex/hooks.json" "$TARGET_PROJECT/.co
 PROJECT_ID_FILE="$TARGET_PROJECT/.codex/project_id"
 if [ ! -f "$PROJECT_ID_FILE" ]; then
   if command -v uuidgen >/dev/null 2>&1; then
-    PROJECT_ID="$(uuidgen | tr 'A-Z' 'a-z')"
+    PROJECT_ID="$(uuidgen | tr '[:upper:]' '[:lower:]')"
   else
     PROJECT_ID="$(python3 -c 'import uuid; print(uuid.uuid4())')"
   fi

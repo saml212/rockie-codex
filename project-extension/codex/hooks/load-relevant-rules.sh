@@ -85,7 +85,7 @@ SQL
 
 if [ -n "$RESULTS" ]; then
   echo "[load-relevant-rules] Prior learnings that may apply to this prompt:"
-  echo "$RESULTS" | sed 's/^/  /'
+  printf '%s\n' "$RESULTS" | sed 's/^/  /'
 fi
 
 exit 0

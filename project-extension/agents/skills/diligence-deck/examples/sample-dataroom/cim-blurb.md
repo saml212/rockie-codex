@@ -41,9 +41,9 @@ verticals. Average ACV: $82K. Sales cycle: 45-90 days.
 
 ## Transaction
 
-The founders are seeking a strategic acquirer or growth-equity partner
-at a valuation of ~5x ARR ($35M). Full management team available to
-roll equity.
+ARR: $7.0M (trailing, as of 2025-12-31). The founders are seeking a
+strategic acquirer or growth-equity partner at a valuation of ~5x ARR
+($35M). Full management team available to roll equity.
 
 ---
 *All figures are synthetic and for testing purposes only.*

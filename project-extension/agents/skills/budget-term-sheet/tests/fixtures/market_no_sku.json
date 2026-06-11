@@ -1,0 +1,10 @@
+{
+  "rows": [
+    {
+      "gpu_type": "A100_80GB",
+      "gpu_count": 1,
+      "available": true,
+      "marked_up_cost_cents": 8400
+    }
+  ]
+}

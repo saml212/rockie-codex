@@ -8,7 +8,9 @@
 #                  <dataroom_path>/manifest.json.
 #
 # Outputs manifest.json: array of objects with fields:
-#   filename, type, size_bytes, excerpt (first ~500 chars of text),
+#   filename (basename, for display), relpath (path relative to the data-room
+#   root, used to actually open the file -- nested docs live in subfolders),
+#   type, size_bytes, excerpt (first ~500 chars of text),
 #   extraction_method, warnings[]
 #
 # Dependencies: bash, python3 (stdlib only), pdftotext (optional).
@@ -106,8 +108,9 @@ for f in "${ALL_FILES[@]}"; do
   ext="${f##*.}"
   ext="${ext,,}"
   basename_f="$(basename "$f")"
-  # Skip manifest itself and hidden files
-  if [[ "$basename_f" == manifest.json || "$basename_f" == .* ]]; then
+  # Skip our own scaffolding outputs and hidden files (so re-runs stay clean
+  # and reconcile.json/manifest.json never count as "skipped data-room docs").
+  if [[ "$basename_f" == manifest.json || "$basename_f" == reconcile.json || "$basename_f" == .* ]]; then
     continue
   fi
   if echo "$SUPPORTED_EXTENSIONS" | grep -qw "$ext"; then
@@ -150,13 +153,19 @@ trap 'rm -rf "$TMPDIR_WORK"' EXIT
 DOCS_FILE="$TMPDIR_WORK/docs.json"
 echo "[]" > "$DOCS_FILE"
 
+DATAROOM_ROOT="${DATAROOM%/}"
+
 for filepath in "${SUPPORTED_FILES[@]}"; do
   filename="$(basename "$filepath")"
+  # relpath: the doc's path RELATIVE to the data-room root. Reconcile opens
+  # files by relpath so nested docs (financials/Q-summary.txt) are readable;
+  # filename alone is ambiguous and unresolvable for non-root docs.
+  relpath="${filepath#"$DATAROOM_ROOT"/}"
   ext="${filename##*.}"
   ext="${ext,,}"
   size_bytes="$(wc -c < "$filepath" | tr -d ' ')"
 
-  echo "  -> $filename ($size_bytes bytes)" >&2
+  echo "  -> $relpath ($size_bytes bytes)" >&2
 
   # Run python extractor; stderr = method, stdout = excerpt
   method_file="$TMPDIR_WORK/method.txt"
@@ -181,7 +190,7 @@ for filepath in "${SUPPORTED_FILES[@]}"; do
   fi
 
   # Append to docs array
-  python3 - "$DOCS_FILE" "$filename" "$ext" "$size_bytes" "$method" "$warnings_json" "$excerpt" <<'PYEOF'
+  python3 - "$DOCS_FILE" "$filename" "$ext" "$size_bytes" "$method" "$warnings_json" "$excerpt" "$relpath" <<'PYEOF'
 import sys, json
 
 docs_file  = sys.argv[1]
@@ -191,12 +200,14 @@ size_bytes = int(sys.argv[4])
 method     = sys.argv[5]
 warnings   = json.loads(sys.argv[6])
 excerpt    = sys.argv[7]
+relpath    = sys.argv[8]
 
 with open(docs_file) as f:
     docs = json.load(f)
 
 docs.append({
     "filename":          filename,
+    "relpath":           relpath,
     "type":              ext,
     "size_bytes":        size_bytes,
     "extraction_method": method,
@@ -235,6 +246,19 @@ if not docs:
     global_warnings.append("No supported files found; check extensions (pdf, docx, txt, md)")
 if skipped:
     global_warnings.append(f"{len(skipped)} file(s) skipped (unsupported type)")
+
+# Basename collisions across folders: two docs share a filename but live in
+# different folders. Files are resolved by relpath so this is not fatal, but a
+# collision means display-by-basename is ambiguous -- surface it.
+from collections import Counter
+name_counts = Counter(d["filename"] for d in docs)
+dupes = sorted(n for n, c in name_counts.items() if c > 1)
+for n in dupes:
+    paths = ", ".join(d["relpath"] for d in docs if d["filename"] == n)
+    global_warnings.append(
+        f"basename collision: '{n}' appears in multiple folders ({paths}); "
+        f"resolved by relpath, but displays are ambiguous"
+    )
 
 manifest = {
     "dataroom_path":  dataroom,

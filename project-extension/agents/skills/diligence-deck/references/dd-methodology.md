@@ -23,10 +23,14 @@ Does every material risk have exactly one section home? If no, fix it.
 
 ## Pyramid principle in diligence findings
 
-The pyramid principle (Barbara Minto) in practice:
+The pyramid principle (Barbara Minto) in practice. This is why findings
+run **0–8 with Section 0 (Executive summary & recommendation) first**:
+the IC reads the answer (verdict + 3–5 headline findings), then drills into
+the supporting sections 1–8. Answer first, evidence second.
 
-1. **Headline first.** Each section opens with one sentence the partner
-   can read in isolation and know whether to drill down.
+1. **Headline first — as a declarative action title.** Each section opens
+   with one sentence the partner can read in isolation, with the number in
+   it, and know whether to drill down. See `declarative-titles.md`.
    Bad: "Customers are an important aspect of the business."
    Good: "Top-3 customers represent 68% of ARR; two contracts are
    month-to-month with no renewal clause."
@@ -45,23 +49,25 @@ The pyramid principle (Barbara Minto) in practice:
 ## Acquisition DD deck anatomy
 
 A standard big-three firm DD deck has this spine (not all clients see
-all sections; the findings.md must cover all so A2 can prune):
+all sections; findings.md must cover all so A2 can prune). It maps 1:1 to
+findings sections 0–8:
 
 ```
 Cover + deal snapshot (1 slide)
-Executive summary — 5 bullets max (1 slide)
-Business overview (2-3 slides)
-Market and competitive position (2-3 slides)
-Financial quality (3-5 slides — most scrutinized)
-Customer and revenue concentration (2 slides)
-Legal and contractual risk (1-2 slides)
-Management and team (1-2 slides)
-Integration and synergies (1-2 slides)
-Valuation and deal structure (1-2 slides)
+§0 Executive summary & recommendation — verdict + 3-5 headlines (1 slide)
+§1 Business overview (2-3 slides)
+§2 Market and competitive position (2-3 slides)
+§3 Financial quality (3-5 slides — most scrutinized)
+§4 Customer and revenue concentration (2 slides)
+§5 Legal and contractual risk (1-2 slides)
+§6 Management and team (1-2 slides)
+§7 Integration and synergies (1-2 slides)
+§8 Valuation and deal structure (1-2 slides)
 Open questions / next steps (1 slide)
 ```
 
-Total: 18-24 slides. A2 maps findings sections to this spine.
+Total: 18-24 slides. A2 maps findings sections to this spine. Note the deck
+LEADS with §0 (the verdict) even though §0 is derived last — pyramid-first.
 
 ---
 
@@ -99,24 +105,36 @@ These are real failure modes. Atlas must not produce them.
 
 ---
 
-## Research sequencing for each MECE section
+## Research sequencing — retrieve, then synthesize
 
-When running the research step, do this for each section in order:
+The research step is two separated sub-steps (see `evidence-discipline.md`
+§3). Run [3.5] reconcile FIRST so you know the contradictions before you
+write.
 
-1. Check the manifest for relevant documents. Read the full text of
-   any document tagged to this section.
-2. Extract facts verbatim (or as close as the document allows). Write
-   the manifest filename + page as the citation.
-3. List what facts you still need. For each missing fact:
-   a. Web search with specific operators (e.g. site:sec.gov,
-      site:crunchbase.com, the company name + "annual report").
-   b. If a credible web source answers it, cite the URL.
-   c. If no source answers it, write "Not available — open question."
-4. Draft the section: Headline, Key facts (cited), Risks (H/M/L),
-   Open questions.
+**[3a] RETRIEVE (build the evidence pool — no findings yet):**
+1. Read `reconcile.json`. Note every contradiction and missing field.
+2. For each document in the manifest, read the FULL text and copy verbatim
+   quotes that bear on any section: `(quote, filename, locator, candidate
+   section)`. Copy the EXACT string — never paraphrase a number.
+3. For facts no document supplies, web-search with specific operators
+   (site:sec.gov, site:crunchbase.com, company + "annual report"). Capture
+   the URL + the verbatim quote. Tag web-only facts `low`.
 
-Do not move to the next section until the current one has at least
-one citation per key fact.
+**[3b] SYNTHESIZE (write sections 1–8, then derive 0):**
+4. Write each section USING ONLY the evidence pool. Compute ratios / apply
+   benchmarks (tag `medium`), but introduce no fact absent from the pool.
+5. Assign each reconcile contradiction to exactly one section's
+   `reconcile_flags`; resolve it or raise it as an open question.
+6. Where the pool is silent, write "Not available — open question for
+   management" and add the specific question. Never hedge, never estimate.
+7. Draft each section: declarative Headline, Key facts (verbatim-cited,
+   confidence-tagged), Risks (H/M/L), Open questions, reconcile_flags.
+8. Derive Section 0 LAST from sections 1–8: the verdict + 3–5 headline
+   findings that point to the sections owning the evidence.
+
+Do not write a section until every key fact in it has a `cite_quote`.
+Keep each section in the 3–8 fact band; a thin section is an open question,
+not a stub.
 
 ---
 

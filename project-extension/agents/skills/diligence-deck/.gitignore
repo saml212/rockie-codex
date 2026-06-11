@@ -1,0 +1,9 @@
+# Generated scaffolding from the skill's scripts — never commit.
+__pycache__/
+*.pyc
+manifest.json
+reconcile.json
+deck_payload.json
+deck_spec.json
+deck.pptx
+battleground-results*.json

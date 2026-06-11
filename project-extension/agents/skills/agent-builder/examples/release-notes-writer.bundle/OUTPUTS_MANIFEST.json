@@ -1,0 +1,99 @@
+{
+  "outputs_manifest_version": "1.0",
+  "agent": "release-notes-writer",
+  "goal": "Turn a list of merged pull requests into a clear, user-facing release-notes section grouped by Added / Changed / Fixed, with one plain-language line per change.",
+  "selection": [
+    "repo",
+    "techdoc",
+    "pptx",
+    "af",
+    "policies",
+    "monitoring"
+  ],
+  "artifacts": [
+    {
+      "output": "repo",
+      "path": "release-notes-writer.repo.tar.gz",
+      "sha256": "f6320016f4d828cd8dc8d1e09a56491430f3c11fb9e8477c28af47657c06aeaf"
+    },
+    {
+      "output": "techdoc",
+      "path": "TECHNICAL_DOCUMENTATION.md",
+      "sha256": "ed2da6dee783705c0a6af1e9af9774aa6ad377f14139ba408de841eae385f31f",
+      "verbatim_files": [
+        {
+          "path": ".claude/skills/self-critic/SKILL.md",
+          "sha256": "a8f0057feac8e2800ce515f1d70537fda7e7be659899a4d75f64a7dc10a6ddf3"
+        },
+        {
+          "path": ".claude/skills/self-critic/domain-critic.md",
+          "sha256": "49c1ac00311f0346381e82d196445b903d5c5d11e46d1147c2d8e21f699b35d7"
+        },
+        {
+          "path": "CLAUDE.md",
+          "sha256": "5615358c4224f9335ff02ff541768797a3ec3e0753103c6799d326d410fed5f2"
+        },
+        {
+          "path": "policies/policy-01.md",
+          "sha256": "1c73bd322f804082e7ac3a92067c2be38f0adb28abbd216718826109c73811e5"
+        },
+        {
+          "path": "policies/policy-02.md",
+          "sha256": "8f5cdde6efcaff557cdc411340dff13a1c101181ab3e5f6ec7bb2af97bc37528"
+        },
+        {
+          "path": "policies/policy-03.md",
+          "sha256": "e06b2677765c1ff00c984d54e0751473e3c006266ec2f673573a5792e205c0d0"
+        }
+      ]
+    },
+    {
+      "output": "pptx",
+      "path": "release-notes-writer.pptx.request.json",
+      "sha256": "5d8abcdf5e02eb0e63b2814993af910788e6923875f2f60bbdc4ab537c7a33b7"
+    },
+    {
+      "output": "pptx",
+      "path": "release-notes-writer.pptx.emit-args.json",
+      "sha256": "3a618eb24f98acff2abbf4f379e010685c2b5be45d2ca545e3f3a4648b00c31b"
+    },
+    {
+      "output": "af",
+      "path": "release-notes-writer.af",
+      "sha256": "7e9d328b6951743c19b1a8a5ef46cafda94c19cfa1eb44ec1bb23216204cd297"
+    },
+    {
+      "output": "policies",
+      "path": "policies-bundle",
+      "files": [
+        {
+          "path": "policies-bundle/policies/policy-01.md",
+          "sha256": "1c73bd322f804082e7ac3a92067c2be38f0adb28abbd216718826109c73811e5"
+        },
+        {
+          "path": "policies-bundle/policies/policy-02.md",
+          "sha256": "8f5cdde6efcaff557cdc411340dff13a1c101181ab3e5f6ec7bb2af97bc37528"
+        },
+        {
+          "path": "policies-bundle/policies/policy-03.md",
+          "sha256": "e06b2677765c1ff00c984d54e0751473e3c006266ec2f673573a5792e205c0d0"
+        },
+        {
+          "path": "policies-bundle/.claude/hooks/policy_gate.py",
+          "sha256": "2f8784adb633384394d5c417a825eed8a300681bc5c52c2cee80f93b5e70eeee"
+        }
+      ],
+      "sha256": "d59735679b575552da5bc87922b78a8f40deb7d1d005bfdddda4e67a4eb882e1"
+    },
+    {
+      "output": "monitoring",
+      "path": "monitoring.json",
+      "sha256": "cc2143f86ff2774152700b7ea5580a66c85befb29d90d444967041845fa83a4b"
+    },
+    {
+      "output": "monitoring",
+      "path": "MONITORING.md",
+      "sha256": "7e07d264ee2ee7e1bd23cef5907d90f1e4dcbba61fc921397465d3cdcf364418"
+    }
+  ]
+}

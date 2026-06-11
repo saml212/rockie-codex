@@ -1,0 +1,11 @@
+{
+  "id": "source:cust01",
+  "title": "Top-10 Customer List",
+  "topics": [],
+  "full_text": "SYNTHETIC DATA -- FOR TESTING ONLY -- NOT A REAL COMPANY OR DEAL\n\nACME DATASYNC INC. -- TOP-10 CUSTOMER LIST (SYNTHETIC FY2025)\n\nAll customer names, revenues, and details are entirely fictional.\nCreated to test data-room ingestion functionality only.\n\nRank  Customer Name              Sector          ARR ($K)  Contract End  Auto-Renew\n----  -------------------------  -------------   --------  ------------  ----------\n1     Theta Manufacturing LLC    Manufacturing    920       2026-06-30    No\n2     BlueLine Logistics Corp    Logistics        840       2027-03-31    Yes\n3     Vertex Parts & Supply      Manufacturing    710       2026-09-30    No\n4     Coastal Freight Inc        Logistics        580       2027-06-30    Yes\n5     Ironclad Fabrications      Manufacturing    460       2026-12-31    Yes\n6     Pacific Distribution Co    Logistics        390       2026-08-31    No\n7     Cornerstone Systems Ltd    Distribution     340       2027-01-31    Yes\n8     Midwest Gear Works         Manufacturing    310       2026-11-30    Yes\n9     Summit Warehousing Inc     Logistics        290       2026-07-31    No\n10    Redwood Supply Chain Co    Distribution     260       2027-02-28    Yes\n\nTOP-10 ARR TOTAL:              5,100  ($K)\nTOTAL ARR:                     7,400  ($K)\nTOP-10 AS % OF ARR:            68.9%\n\nCONCENTRATION FLAGS:\n- Customer #1 (Theta Manufacturing): 12.4% of ARR. Below 20% threshold\n  but contract expires 2026-06-30 with no auto-renew. Renewal risk.\n- Customers #1, #3, #6, #9: contracts expire within 12 months with no\n  auto-renew. Combined ARR at risk: $1,940K (26% of total ARR).\n\nNOTE: All data is synthetic. Do not use for any real analysis.\n",
+  "truncated": false,
+  "asset": {
+    "url": null,
+    "file_path": "/data/uploads/t-95a34ff7c78c/customer-list.txt"
+  }
+}

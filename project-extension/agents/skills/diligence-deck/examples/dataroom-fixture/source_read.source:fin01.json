@@ -1,0 +1,11 @@
+{
+  "id": "source:fin01",
+  "title": "Acme Financial Summary FY2025",
+  "topics": [],
+  "full_text": "SYNTHETIC DATA -- FOR TESTING ONLY -- NOT A REAL COMPANY OR DEAL\n\nACME DATASYNC INC. -- FINANCIAL SUMMARY (SYNTHETIC FY2025)\n\nAll figures in USD thousands. Audited by Fictional Audit LLP (synthetic).\n\nINCOME STATEMENT SUMMARY\n--------------------------\nTotal Revenue:              8,200\n  Subscription ARR:         7,100\n  Professional Services:    1,100\nCost of Revenue:            1,970  (24% of revenue)\nGross Profit:               6,230  (76% gross margin)\n\nOperating Expenses:\n  Sales & Marketing:        2,870  (35% of revenue)\n  Research & Development:   1,640  (20% of revenue)\n  General & Administrative:   984  (12% of revenue)\nTotal OpEx:                 5,494\n\nEBITDA:                       736  (9% EBITDA margin)\nD&A:                           82\nEBIT:                         654\n\nNon-recurring items (addbacks):\n  Founder salary above market rate:    320  (replacement cost est. $180K)\n  One-time legal settlement FY2024:    150  (resolved; no recurrence)\nAdjusted EBITDA:            1,206  (15% adj. EBITDA margin)\n\nBALANCE SHEET HIGHLIGHTS (synthetic as of 2025-12-31)\n-------------------------------------------------------\nCash & equivalents:         1,840\nAccounts receivable:          920  (avg DSO: 41 days)\nTotal current assets:       2,980\nTotal assets:               3,420\n\nAccounts payable:             310\nDeferred revenue:             890\nTotal current liabilities:  1,320\nTotal liabilities:          1,420\nTotal equity:               2,000\n\nKEY METRICS\n-----------\nARR (as of 2025-12-31):     7,400  (includes Jan 2026 signed contracts)\nNRR (Net Revenue Retention): 112%  (synthetic; FY2025 cohort)\nLogo churn rate:              8%   (synthetic; FY2025)\nCustomers:                   103   (synthetic)\nACV (avg contract value):    $82K  (synthetic)\nHeadcount:                   91    full-time employees (synthetic; payroll basis 2025-12-31)\n\nNOTE: All figures are synthetic test data. Do not use for any real analysis.\n",
+  "truncated": false,
+  "asset": {
+    "url": null,
+    "file_path": "/data/uploads/t-95a34ff7c78c/financial-summary.txt"
+  }
+}

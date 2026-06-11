@@ -1,0 +1,13 @@
+{
+  "provider": "langfuse",
+  "scope": "per-agent",
+  "project": "rockie-agent-release-notes-writer",
+  "agent": "release-notes-writer",
+  "goal": "Turn a list of merged pull requests into a clear, user-facing release-notes section grouped by Added / Changed / Fixed, with one plain-language line per change.",
+  "owner": "agent-builder/B3-observability",
+  "note": "Pointer only. Per-agent Langfuse project provisioned by the B3 observability hand-off; this bundle references it, it does not create the project.",
+  "dashboards": {
+    "traces": "langfuse://rockie-agent-release-notes-writer/traces",
+    "scores": "langfuse://rockie-agent-release-notes-writer/scores"
+  }
+}

@@ -47,5 +47,6 @@ NRR (Net Revenue Retention): 112%  (synthetic; FY2025 cohort)
 Logo churn rate:              8%   (synthetic; FY2025)
 Customers:                   103   (synthetic)
 ACV (avg contract value):    $82K  (synthetic)
+Headcount:                   91    full-time employees (synthetic; payroll basis 2025-12-31)
 
 NOTE: All figures are synthetic test data. Do not use for any real analysis.

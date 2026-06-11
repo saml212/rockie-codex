@@ -1,0 +1,58 @@
+{
+  "prompt": "Render a concise summary deck titled 'Agent summary: release-notes-writer' of this built agent: its goal, model, tools, policies, adversarial hardening, and a-la-carte outputs. Slide 1 (section_id 0) is the title/overview and MUST lead. Use one slide per entry in `findings`.",
+  "slide_count": 5,
+  "title": "Agent summary: release-notes-writer",
+  "findings": [
+    {
+      "section_id": 0,
+      "layout": "title",
+      "headline": "Agent: release-notes-writer",
+      "bullets": [
+        "Runtime: fly-machine:kind=agent",
+        "Model: claude-opus-4-8",
+        "Research foundation: gpt-researcher"
+      ],
+      "subtitle": "Goal: Turn a list of merged pull requests into a clear, user-facing release-notes section grouped by Added / Changed / Fixed, with one plain-language line per change."
+    },
+    {
+      "section_id": 1,
+      "layout": "content",
+      "headline": "Tools (MCP)",
+      "bullets": [
+        "github-mcp"
+      ]
+    },
+    {
+      "section_id": 2,
+      "layout": "content",
+      "headline": "Policies",
+      "bullets": [
+        "Never invent a change that is not backed by a merged PR title or body.",
+        "deny:internal-only",
+        "Group every change under exactly one of Added / Changed / Fixed."
+      ]
+    },
+    {
+      "section_id": 3,
+      "layout": "content",
+      "headline": "Adversarial hardening",
+      "bullets": [
+        "Self-adversarial critic: on",
+        "AI-detection publish sublayer: off",
+        "Required consecutive clean rounds: 2",
+        "Max rounds: 6"
+      ]
+    },
+    {
+      "section_id": 4,
+      "layout": "content",
+      "headline": "Outputs (a-la-carte)",
+      "bullets": [
+        "markdown"
+      ]
+    }
+  ],
+  "attachments": [],
+  "template_path": null,
+  "theme": {}
+}

@@ -1,0 +1,19 @@
+# Generated scaffolding + gate/export outputs from the skill's scripts — never commit.
+__pycache__/
+*.pyc
+# Scaffolded agent repos go anywhere the declarer points; ignore the default target.
+built-agents/
+/tmp-scaffold/
+# Publish-gate verdicts and .af exports produced by runs / selftests.
+verdict*.json
+*.af
+# ...but the examples/ dir ships a CURATED, generated-then-committed sample agent
+# repo + its .af. Un-ignore those so they travel with the skill.
+!examples/
+!examples/**
+# ...except never ship compiled bytecode, even inside the curated sample
+# (the !examples/** negation above would otherwise re-include it).
+examples/**/__pycache__/
+examples/**/*.pyc
+# Ad-hoc regenerations of the sample go here and stay ignored.
+examples/_generated/

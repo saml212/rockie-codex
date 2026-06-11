@@ -1,0 +1,345 @@
+[
+  {
+    "section_id": 0,
+    "section": "Executive summary & recommendation",
+    "headline": "Proceed with conditions: 87% recurring revenue is durable, but a 26%-of-ARR renewal cliff and an unreconciled ARR figure must close pre-LOI",
+    "recommendation": "proceed_with_conditions",
+    "key_facts": [
+      {
+        "fact": "Revenue is 87% recurring subscription on $8.2M FY2025 total (see Section 3)",
+        "cite_file": "financial-summary.txt",
+        "cite_quote": "Subscription ARR:         7,100",
+        "cite_locator": "Income Statement Summary",
+        "confidence": "high"
+      },
+      {
+        "fact": "$1,940K (26% of ARR) sits in four contracts expiring within 12 months with no auto-renew (see Section 4)",
+        "cite_file": "customer-list.txt",
+        "cite_quote": "Combined ARR at risk: $1,940K (26% of total ARR).",
+        "cite_locator": "Concentration Flags",
+        "confidence": "high"
+      },
+      {
+        "fact": "ARR is stated three different ways across the data room (6,200 / 7,100 / 7,400); must reconcile before pricing (see Section 8)",
+        "cite_file": "financials/Q-summary.txt",
+        "cite_quote": "ARR (as of 2025-12-31):     6,200   (management flash, pre-audit reconciliation)",
+        "cite_locator": "Key Metrics",
+        "confidence": "high"
+      },
+      {
+        "fact": "Ask of ~5x ARR ($35M) requires the ARR base and the renewal cliff resolved to underwrite (see Section 8)",
+        "cite_file": "cim-blurb.md",
+        "cite_quote": "at a valuation of ~5x ARR\n($35M)",
+        "cite_locator": "Transaction",
+        "confidence": "high"
+      }
+    ],
+    "risks": [],
+    "open_questions": [],
+    "reconcile_flags": []
+  },
+  {
+    "section_id": 1,
+    "section": "Business overview",
+    "headline": "B2B SaaS data-sync platform with 103 customers and $82K average ACV, founded 2019",
+    "recommendation": null,
+    "key_facts": [
+      {
+        "fact": "No-code connector hub synchronizing enterprise data across cloud and on-premise systems for mid-market manufacturers and logistics firms",
+        "cite_file": "cim-blurb.md",
+        "cite_quote": "Acme DataSync Inc. (\"Acme\" or the \"Company\") is a B2B SaaS platform\nthat synchronizes enterprise data across cloud and on-premise systems.",
+        "cite_locator": "Business Overview",
+        "confidence": "high"
+      },
+      {
+        "fact": "Average contract value is $82K, sold by a 9-AE direct team on a 45-90 day cycle",
+        "cite_file": "cim-blurb.md",
+        "cite_quote": "Average ACV: $82K. Sales cycle: 45-90 days.",
+        "cite_locator": "Go-to-Market",
+        "confidence": "high"
+      },
+      {
+        "fact": "103 customers as of FY2025 per the financial summary",
+        "cite_file": "financial-summary.txt",
+        "cite_quote": "Customers:                   103",
+        "cite_locator": "Key Metrics",
+        "confidence": "high"
+      }
+    ],
+    "risks": [
+      { "risk": "Single-product dependency; no second product line disclosed", "rating": "M" }
+    ],
+    "open_questions": ["Provide product roadmap and any second-product revenue contribution."],
+    "reconcile_flags": []
+  },
+  {
+    "section_id": 2,
+    "section": "Market & competitive position",
+    "headline": "TAM/SAM and competitive share not disclosed in the data room — a gap for management",
+    "recommendation": null,
+    "key_facts": [
+      {
+        "fact": "Targets mid-market manufacturers and logistics firms with legacy ERP plus modern cloud tools",
+        "cite_file": "cim-blurb.md",
+        "cite_quote": "who maintain legacy ERP systems alongside modern cloud tools.",
+        "cite_locator": "Business Overview",
+        "confidence": "high"
+      },
+      {
+        "fact": "Market sizing (TAM/SAM) not disclosed",
+        "cite_file": "none",
+        "cite_quote": "Not available — open question for management",
+        "cite_locator": "n/a",
+        "confidence": "low"
+      },
+      {
+        "fact": "Competitive share and named substitutes not disclosed",
+        "cite_file": "none",
+        "cite_quote": "Not available — open question for management",
+        "cite_locator": "n/a",
+        "confidence": "low"
+      }
+    ],
+    "risks": [
+      { "risk": "No methodology-backed TAM/SAM; market thesis unverifiable from data room", "rating": "M" }
+    ],
+    "open_questions": [
+      "Provide a methodology-backed TAM/SAM for the data-sync segment in manufacturing and logistics.",
+      "Name the top three competitors and substitution risks."
+    ],
+    "reconcile_flags": []
+  },
+  {
+    "section_id": 3,
+    "section": "Financial quality",
+    "headline": "76% gross margin but only 9% EBITDA on 35%-of-revenue S&M; adj. EBITDA of $1.2M leans on a $320K founder-comp addback",
+    "recommendation": null,
+    "key_facts": [
+      {
+        "fact": "Gross margin is 76% on $8.2M revenue",
+        "cite_file": "financial-summary.txt",
+        "cite_quote": "Gross Profit:               6,230  (76% gross margin)",
+        "cite_locator": "Income Statement Summary",
+        "confidence": "high"
+      },
+      {
+        "fact": "Unadjusted EBITDA is only 9% of revenue, driven by S&M at 35% of revenue",
+        "cite_file": "financial-summary.txt",
+        "cite_quote": "EBITDA:                       736  (9% EBITDA margin)",
+        "cite_locator": "Income Statement Summary",
+        "confidence": "high"
+      },
+      {
+        "fact": "Adjusted EBITDA of $1,206K depends on a $320K above-market founder-salary addback (44% of the $470K addback bridge)",
+        "cite_file": "financial-summary.txt",
+        "cite_quote": "Founder salary above market rate:    320  (replacement cost est. $180K)",
+        "cite_locator": "Non-recurring items (addbacks)",
+        "confidence": "high"
+      },
+      {
+        "fact": "DSO of 41 days is in range; deferred revenue of $890K inflates reported working capital",
+        "cite_file": "financial-summary.txt",
+        "cite_quote": "Accounts receivable:          920  (avg DSO: 41 days)",
+        "cite_locator": "Balance Sheet Highlights",
+        "confidence": "high"
+      }
+    ],
+    "risks": [
+      { "risk": "Founder-comp addback ($320K) overstates run-rate EBITDA vs $180K replacement cost", "rating": "M" },
+      { "risk": "Thin 9% unadjusted EBITDA leaves no margin for S&M efficiency miss", "rating": "M" }
+    ],
+    "open_questions": ["Confirm the $180K CFO/founder replacement cost with a signed offer or market comp."],
+    "reconcile_flags": []
+  },
+  {
+    "section_id": 4,
+    "section": "Customer & revenue concentration",
+    "headline": "Top-10 are 68.9% of ARR; four contracts (26% of ARR) expire within 12 months with no auto-renew",
+    "recommendation": null,
+    "key_facts": [
+      {
+        "fact": "Top-10 customers are 68.9% of total ARR",
+        "cite_file": "customer-list.txt",
+        "cite_quote": "TOP-10 AS % OF ARR:            68.9%",
+        "cite_locator": "Top-10 Customer List",
+        "confidence": "high"
+      },
+      {
+        "fact": "Largest customer (Theta Manufacturing) is 12.4% of ARR and expires 2026-06-30 with no auto-renew",
+        "cite_file": "customer-list.txt",
+        "cite_quote": "Customer #1 (Theta Manufacturing): 12.4% of ARR. Below 20% threshold\n  but contract expires 2026-06-30 with no auto-renew. Renewal risk.",
+        "cite_locator": "Concentration Flags",
+        "confidence": "high"
+      },
+      {
+        "fact": "$1,940K (26% of total ARR) is at renewal risk across customers #1, #3, #6, #9",
+        "cite_file": "customer-list.txt",
+        "cite_quote": "Combined ARR at risk: $1,940K (26% of total ARR).",
+        "cite_locator": "Concentration Flags",
+        "confidence": "high"
+      },
+      {
+        "fact": "NRR is 112% and logo churn 8% for the FY2025 cohort",
+        "cite_file": "financial-summary.txt",
+        "cite_quote": "NRR (Net Revenue Retention): 112%  (synthetic; FY2025 cohort)",
+        "cite_locator": "Key Metrics",
+        "confidence": "high"
+      }
+    ],
+    "risks": [
+      { "risk": "26% of ARR in non-auto-renewing contracts expiring within 12 months", "rating": "H" }
+    ],
+    "open_questions": ["Provide renewal status / verbal commitments for the four expiring no-auto-renew contracts."],
+    "reconcile_flags": []
+  },
+  {
+    "section_id": 5,
+    "section": "Legal & contractual risk",
+    "headline": "Top customer can terminate on change of control with 30 days' notice; IP is owned by the company",
+    "recommendation": null,
+    "key_facts": [
+      {
+        "fact": "On a change of control, the customer may terminate on 30 days' notice within 90 days of closing",
+        "cite_file": "contract-snippet.md",
+        "cite_quote": "Customer may, at its sole discretion,\nterminate this Agreement upon 30 days written notice delivered within 90\ndays of the closing of such Change of Control transaction.",
+        "cite_locator": "Section 4.3(b)",
+        "confidence": "high"
+      },
+      {
+        "fact": "Software, algorithms, and documentation are the sole and exclusive property of the company",
+        "cite_file": "contract-snippet.md",
+        "cite_quote": "All software, algorithms, and associated documentation remain the sole\nand exclusive property of Provider.",
+        "cite_locator": "Section 7.1",
+        "confidence": "high"
+      },
+      {
+        "fact": "Liability is capped at the prior 12 months of fees paid",
+        "cite_file": "contract-snippet.md",
+        "cite_quote": "IN NO EVENT SHALL EITHER PARTY'S AGGREGATE LIABILITY EXCEED THE FEES\nPAID BY CUSTOMER IN THE TWELVE MONTHS PRECEDING THE CLAIM.",
+        "cite_locator": "Section 12.2",
+        "confidence": "high"
+      }
+    ],
+    "risks": [
+      { "risk": "Change-of-control termination right held by the largest customer (12.4% of ARR)", "rating": "H" }
+    ],
+    "open_questions": ["Confirm how many other MSAs carry the same change-of-control termination clause."],
+    "reconcile_flags": []
+  },
+  {
+    "section_id": 6,
+    "section": "Management & team",
+    "headline": "Founders will roll equity, but no CFO is named and replacement-cost basis is unverified — a Day-1 gap",
+    "recommendation": null,
+    "key_facts": [
+      {
+        "fact": "Full management team is available to roll equity",
+        "cite_file": "cim-blurb.md",
+        "cite_quote": "Full management team available to roll equity.",
+        "cite_locator": "Transaction",
+        "confidence": "high"
+      },
+      {
+        "fact": "Founder draws above-market salary; replacement cost estimated at $180K but no named successor",
+        "cite_file": "financial-summary.txt",
+        "cite_quote": "Founder salary above market rate:    320  (replacement cost est. $180K)",
+        "cite_locator": "Non-recurring items (addbacks)",
+        "confidence": "high"
+      },
+      {
+        "fact": "Org chart and key-person retention terms not disclosed",
+        "cite_file": "none",
+        "cite_quote": "Not available — open question for management",
+        "cite_locator": "n/a",
+        "confidence": "low"
+      }
+    ],
+    "risks": [
+      { "risk": "No named CFO/finance leader; founder dependency post-close", "rating": "M" }
+    ],
+    "open_questions": ["Provide org chart, key-person retention/non-compete terms, and CFO hiring plan."],
+    "reconcile_flags": []
+  },
+  {
+    "section_id": 7,
+    "section": "Integration & synergies",
+    "headline": "Integration scope not disclosed in the data room — systems overlap and synergy timeline are open questions",
+    "recommendation": null,
+    "key_facts": [
+      {
+        "fact": "87 employees per the CIM (contradicts the 91 in the financial summary; see reconcile)",
+        "cite_file": "cim-blurb.md",
+        "cite_quote": "**Employees:** 87 (synthetic)",
+        "cite_locator": "Business Overview",
+        "confidence": "high"
+      },
+      {
+        "fact": "Day-1 systems overlap and integration cost not disclosed",
+        "cite_file": "none",
+        "cite_quote": "Not available — open question for management",
+        "cite_locator": "n/a",
+        "confidence": "low"
+      },
+      {
+        "fact": "Synergy timeline and headcount plan post-close not disclosed",
+        "cite_file": "none",
+        "cite_quote": "Not available — open question for management",
+        "cite_locator": "n/a",
+        "confidence": "low"
+      }
+    ],
+    "risks": [
+      { "risk": "Integration cost and synergy realization unquantified", "rating": "M" }
+    ],
+    "open_questions": ["Provide a 100-day integration plan with systems inventory and synergy targets."],
+    "reconcile_flags": [
+      "Headcount differs: CIM states 87 employees vs financial summary 91 full-time employees — reconcile basis (payroll vs synthetic count) before close."
+    ]
+  },
+  {
+    "section_id": 8,
+    "section": "Valuation & deal structure",
+    "headline": "Ask of ~5x ARR ($35M) is unpriceable until the ARR base (6,200 vs 7,100 vs 7,400) is reconciled",
+    "recommendation": null,
+    "key_facts": [
+      {
+        "fact": "Founders seek ~5x ARR ($35M) from a strategic or growth-equity buyer",
+        "cite_file": "cim-blurb.md",
+        "cite_quote": "at a valuation of ~5x ARR\n($35M)",
+        "cite_locator": "Transaction",
+        "confidence": "high"
+      },
+      {
+        "fact": "ARR is stated as 6,200 in the management flash, contradicting the root data room",
+        "cite_file": "financials/Q-summary.txt",
+        "cite_quote": "ARR (as of 2025-12-31):     6,200   (management flash, pre-audit reconciliation)",
+        "cite_locator": "Key Metrics",
+        "confidence": "high"
+      },
+      {
+        "fact": "Financial summary states ARR of 7,400 including Jan 2026 signed contracts — a different basis again",
+        "cite_file": "financial-summary.txt",
+        "cite_quote": "ARR (as of 2025-12-31):     7,400  (includes Jan 2026 signed contracts)",
+        "cite_locator": "Key Metrics",
+        "confidence": "high"
+      },
+      {
+        "fact": "At $35M ask, the 6,200 vs 7,400 ARR spread swings the entry multiple from 5.6x to 4.7x — a material pricing range",
+        "cite_file": "none",
+        "cite_quote": "Not available — open question for management",
+        "cite_locator": "computed from cited ARR figures",
+        "confidence": "medium"
+      }
+    ],
+    "risks": [
+      { "risk": "$35M ask priced off an unreconciled ARR base spanning 6,200-7,400", "rating": "H" }
+    ],
+    "open_questions": [
+      "Provide an audited, single ARR definition with the contract-by-contract bridge from 6,200 to 7,400.",
+      "Provide six SaaS comparables to benchmark the 5x ARR ask."
+    ],
+    "reconcile_flags": [
+      "ARR contradiction: CIM/financial-summary state 7,100-7,400 vs financials/Q-summary 6,200 — resolved here by naming the delta and requiring an audited single figure pre-LOI."
+    ]
+  }
+]

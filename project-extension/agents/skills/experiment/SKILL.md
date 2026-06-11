@@ -1,6 +1,6 @@
 ---
 name: experiment
-description: Run a materials-science / ML compute job on Pebble ML's GPU fleet. Trigger words "run experiment", "submit job", "use the experiment skill". Picks the right GPU type and count from a natural-language description (DFT for QE/VASP/ABINIT, MD for GROMACS/LAMMPS/OpenMM, training for PyTorch/JAX), generates the script, posts it to `POST $ROCKIELAB_API_URL/api/jobs/submit`, polls status, streams logs, and surfaces the final artifacts. Use this for anything that needs a GPU — single A100 up to multi-pod B200 clusters.
+description: Run a materials-science / ML compute job on Rockie GPU capacity. Trigger words "run experiment", "submit job", "use the experiment skill". Picks the right GPU type and count from a natural-language description (DFT for QE/VASP/ABINIT, MD for GROMACS/LAMMPS/OpenMM, training for PyTorch/JAX), generates the script, routes Rockie-originated submits through the budget-term-sheet skill plus `runtime/submit.py`, polls status, streams logs, and surfaces the final artifacts. Use this for anything that needs a GPU — single A100 up to multi-pod B200 clusters.
 ---
 
 # experiment — submit a GPU job
@@ -71,21 +71,66 @@ Always end the script with: tar the results dir to `/workspace/results.tar.gz`, 
 
 ## Submitting
 
-Call the helper at `runtime/submit.py` (don't shell out to curl
-directly — the helper handles the credit-balance pre-check, the
-state-machine polling, and the SSE log tail):
+Before any Rockie-originated submit, invoke the budget-term-sheet skill,
+render the quote, and wait for explicit user approval. Hand the approved
+JSON artifact to `runtime/submit.py` (don't shell out to curl directly —
+the helper handles the credit-balance pre-check, the state-machine
+polling, the SSE log tail, the budget-term-sheet gate, and the dashboard
+Note metadata/profile snapshot packaging):
 
 ```bash
 python3 ${SKILL_DIR}/runtime/submit.py \
     --gpu-type A100_80GB \
     --gpu-count 1 \
+    --region us \
+    --tier spot \
     --script-file /tmp/experiment.sh \
-    --timeout 14400
+    --timeout 14400 \
+    --term-sheet-json /tmp/term-sheet.approved.json
 ```
 
-Required env: `ROCKIELAB_API_URL` (e.g. `https://api.rockielab.com`)
-and `ROCKIELAB_TENANT_TOKEN` (per-tenant). The submit helper exits
-with the job's exit code (0 = DONE, non-zero = FAILED/CANCELLED).
+Required env: `ROCKIELAB_API_URL` (e.g. `https://api.rockielab.com`),
+`ROCKIELAB_TENANT_ID`, and `ROCKIELAB_TENANT_TOKEN`. The token
+authenticates the request; it is not tenant identity, and the helper
+does not fall back to an implicit tenant. The submit helper exits with
+the job's exit code (0 = DONE, non-zero = FAILED/CANCELLED).
+
+Budget gate contract:
+
+- `--term-sheet-json` is required by default for Rockie-authored submits.
+- The helper only accepts final term-sheet decisions `approve` or
+  `modify_then_approve` when the term sheet is available, approvable,
+  and explicitly approved for submit.
+- The approved term sheet must include and match submit GPU type/count,
+  `compute.region`, `compute.tier`, and quoted wallclock. Pass matching
+  `--region` and `--tier`; omitting or changing either field refuses
+  submit locally.
+- If the final budget is below `estimate_cents`, the helper refuses
+  locally before the HTTP submit.
+- Approved term sheets must include `user_budget_cents`; the helper
+  refuses to fall back to `recommended_budget_cents` for submit.
+- `--allow-ungated-submit` exists only for legacy/manual paths; do not
+  use it in normal Rockie skill flows.
+- Optional `--budget-cents` is only an assertion and must exactly equal
+  the approved term sheet's `user_budget_cents`.
+
+Dashboard Note contract:
+
+- Pass `--notebook-id <notebook:...>` when the run belongs to a lab note flow.
+- When a notebook id is present, the helper sends a `dashboard` payload
+  with `run_name`, `origin_skill`, `software`, `monitoring_profile_id`,
+  and a frozen `monitoring_profile_snapshot`. Runs without notebook
+  context remain legacy job submissions and omit the dashboard block.
+- Default `origin_skill` is `experiment`.
+- If you do not set `--monitoring-profile-id`, the helper infers one from
+  the script/software when possible and otherwise falls back to
+  `common.default.v1` with `unprofiled=true` recorded in the snapshot.
+- For PyTorch/JAX training and generic ML experiments, prefer
+  `experiment.ml_baseline.v1`.
+- For physics plans, pass the exact physics profile id already attached
+  by the physics router; the helper can also infer representative
+  adapters such as `physics.molecular_dynamics.v1` for GROMACS/LAMMPS or
+  `physics.electronic_structure.v1` for QE/CP2K/ABINIT scripts.
 
 ## Surfacing results
 
@@ -93,7 +138,9 @@ After `submit.py` returns, fetch the artifact list:
 
 ```bash
 curl -s "$ROCKIELAB_API_URL/api/jobs/${JOB_ID}/artifacts" \
-    -H "X-Tenant-Token: $ROCKIELAB_TENANT_TOKEN"
+    -H "User-Agent: rockie-runtime/1.0 (+https://api.rockielab.com)" \
+    -H "X-Tenant-Token: $ROCKIELAB_TENANT_TOKEN" \
+    -H "X-Tenant-Id: $ROCKIELAB_TENANT_ID"
 ```
 
 Each artifact has a `signed_url` (1h TTL). Surface them to the user
@@ -104,9 +151,13 @@ with sizes; do NOT auto-download large files unless asked.
 Before submitting, check the credit balance:
 
 ```bash
-curl -s "$ROCKIELAB_API_URL/api/jobs/credit-balance?tenant_id=$TID" \
-    -H "X-Tenant-Token: $ROCKIELAB_TENANT_TOKEN"
+curl -s "$ROCKIELAB_API_URL/api/jobs/credit-balance?tenant_id=$ROCKIELAB_TENANT_ID" \
+    -H "User-Agent: rockie-runtime/1.0 (+https://api.rockielab.com)" \
+    -H "X-Tenant-Token: $ROCKIELAB_TENANT_TOKEN" \
+    -H "X-Tenant-Id: $ROCKIELAB_TENANT_ID"
 ```
+
+Do not infer the tenant from the token or use an implicit self tenant.
 
 If the projected cost (timeout × marked-up rate × gpu_count + overhead)
 exceeds the balance, tell the user and offer to top up via Stripe
@@ -142,7 +193,9 @@ echo "JOB_DONE"
 SH
 python3 ${SKILL_DIR}/runtime/submit.py \
     --gpu-type A100_80GB --gpu-count 1 \
-    --script-file /tmp/dft.sh --timeout 3600
+    --region us --tier spot \
+    --script-file /tmp/dft.sh --timeout 3600 \
+    --term-sheet-json /tmp/dft.term-sheet.approved.json
 ```
 
 The artifact list will surface `silicon.out` (the SCF energy is on the
@@ -169,5 +222,7 @@ echo "JOB_DONE"
 SH
 python3 ${SKILL_DIR}/runtime/submit.py \
     --gpu-type A100_80GB --gpu-count 1 \
-    --script-file /tmp/md.sh --timeout 7200
+    --region us --tier spot \
+    --script-file /tmp/md.sh --timeout 7200 \
+    --term-sheet-json /tmp/md.term-sheet.approved.json
 ```

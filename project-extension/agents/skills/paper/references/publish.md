@@ -36,13 +36,24 @@ Do not run `pdflatex` on the orchestrator host. Submit the compile as a job to t
 lab's runtime, the same path `/experiment` uses:
 
 ```bash
-# Submit a LaTeX compile job; the runtime runs pdflatex + bibtex + 2x pdflatex
-curl -s "$ROCKIELAB_API_URL/api/jobs/submit" \
-    -H "X-Tenant-Token: $ROCKIELAB_TENANT_TOKEN" \
-    -H "X-Tenant-Id: $ROCKIELAB_TENANT_ID" \
-    -d @compile-job.json
-# then poll and fetch the resulting main.pdf from the job artifacts
+# First render and approve a compile term sheet, then submit through /experiment.
+python3 ${OPENCLAW_SKILLS_DIR}/budget-term-sheet/scripts/quote_term_sheet.py \
+    --job-spec-json /tmp/latex-compile-job.json \
+    > /tmp/latex-compile.term-sheet.json
+python3 ${OPENCLAW_SKILLS_DIR}/budget-term-sheet/scripts/render_term_sheet.py \
+    --term-sheet-json /tmp/latex-compile.term-sheet.json
+# wait for explicit approve / modify / cancel in chat, save the approved artifact, then:
+python3 ${OPENCLAW_SKILLS_DIR}/experiment/runtime/submit.py \
+    --gpu-type A40_48GB \
+    --gpu-count 1 \
+    --region us \
+    --tier spot \
+    --script-file /tmp/latex-compile.sh \
+    --timeout 3600 \
+    --term-sheet-json /tmp/latex-compile.term-sheet.approved.json
+# then fetch the resulting main.pdf from the job artifacts
 curl -s "$ROCKIELAB_API_URL/api/jobs/${JOB_ID}/artifacts" \
+    -H "User-Agent: rockie-runtime/1.0 (+https://api.rockielab.com)" \
     -H "X-Tenant-Token: $ROCKIELAB_TENANT_TOKEN" \
     -H "X-Tenant-Id: $ROCKIELAB_TENANT_ID"
 ```
@@ -78,6 +89,7 @@ reproducibility pointers, links to the gauntlet and detector-history Notes):
 
 ```bash
 curl -s "$ROCKIELAB_API_URL/api/notes" \
+    -H "User-Agent: rockie-runtime/1.0 (+https://api.rockielab.com)" \
     -H "Authorization: Bearer $ROCKIELAB_PASSWORD" \
     -H "X-Tenant-Id: $ROCKIELAB_TENANT_ID" \
     -H "Content-Type: application/json" \

@@ -1,0 +1,11 @@
+{
+  "id": "source:contract01",
+  "title": "Master Subscription Agreement (excerpt)",
+  "topics": [],
+  "full_text": "<!-- SYNTHETIC DATA -- FOR TESTING ONLY -- NOT A REAL COMPANY OR DEAL -->\n\n# Master Subscription Agreement \u2014 Excerpt (SYNTHETIC)\n\n**Parties:** Acme DataSync Inc. (\"Provider\") and Theta Manufacturing LLC\n(\"Customer\") \u2014 BOTH ENTITIES ARE FICTIONAL.\n**Effective Date:** 2023-07-01 (synthetic)\n**Excerpt purpose:** Test data-room ingestion. This is not a real contract.\n\n---\n\n## Section 4.3 \u2014 Assignment and Change of Control\n\n**4.3(a)** Neither party may assign this Agreement or any rights or\nobligations hereunder without the prior written consent of the other party,\nwhich shall not be unreasonably withheld.\n\n**4.3(b) Change of Control.** Notwithstanding Section 4.3(a), in the event\nof a Change of Control of Provider (defined as any transaction resulting in\na transfer of more than 50% of Provider's voting securities or all or\nsubstantially all of its assets), Customer may, at its sole discretion,\nterminate this Agreement upon 30 days written notice delivered within 90\ndays of the closing of such Change of Control transaction.\n\n**4.3(c)** \"Change of Control\" means: (i) a merger, consolidation, or\nreorganization where existing shareholders hold less than 50% of the\nsurviving entity; (ii) the sale of all or substantially all assets;\nor (iii) any transaction resulting in a new controlling shareholder.\n\n---\n\n## Section 7.1 \u2014 Intellectual Property\n\nAll software, algorithms, and associated documentation remain the sole\nand exclusive property of Provider. Customer receives a non-exclusive,\nnon-transferable license to access the platform during the Term.\n\n---\n\n## Section 12.2 \u2014 Limitation of Liability\n\nIN NO EVENT SHALL EITHER PARTY'S AGGREGATE LIABILITY EXCEED THE FEES\nPAID BY CUSTOMER IN THE TWELVE MONTHS PRECEDING THE CLAIM.\n\n---\n\n*This document is synthetic test data. It does not represent legal advice\nor a real contractual obligation of any kind.*\n",
+  "truncated": false,
+  "asset": {
+    "url": null,
+    "file_path": "/data/uploads/t-95a34ff7c78c/contract-snippet.md"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "github-mcp": {
+      "command": "REPLACE_WITH_LAUNCH_COMMAND",
+      "args": [],
+      "env": {},
+      "_note": "MCP server 'github-mcp' declared for goal: wire its launch command."
+    }
+  }
+}

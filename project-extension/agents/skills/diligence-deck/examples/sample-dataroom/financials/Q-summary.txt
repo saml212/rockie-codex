@@ -1,0 +1,21 @@
+SYNTHETIC DATA -- FOR TESTING ONLY -- NOT A REAL COMPANY OR DEAL
+
+ACME DATASYNC INC. -- QUARTERLY FLASH SUMMARY (SYNTHETIC Q4 2025)
+
+This file lives in a SUBFOLDER (financials/) on purpose: it proves the
+reconcile pipeline reads nested documents, not just root-level ones. The ARR
+figure below deliberately CONTRADICTS the root CIM and financial summary so a
+cross-folder delta is caught.
+
+All figures in USD thousands unless a unit is shown.
+
+KEY METRICS (synthetic; management flash, pre-audit)
+----------------------------------------------------
+ARR (as of 2025-12-31):     6,200   (management flash, pre-audit reconciliation)
+Total Revenue:              8,200
+Customers:                  103
+Headcount:                  91      full-time employees (synthetic)
+
+NOTE: The 6,200 ARR here vs the ~7,100-7,400 stated in the root data room is a
+planted, synthetic inconsistency for pipeline testing. All data is synthetic.
+Do not use for any real analysis.

@@ -1,0 +1,31 @@
+{
+  "id": "notebook:9x7k9xbyxv0sz1bel5su",
+  "name": "Acme DataSync Diligence",
+  "description": "Acquisition due diligence data room (SYNTHETIC fixture)",
+  "archived": false,
+  "source_count": 5,
+  "note_count": 0,
+  "sources": [
+    {
+      "id": "source:cim01",
+      "title": "Acme DataSync CIM"
+    },
+    {
+      "id": "source:fin01",
+      "title": "Acme Financial Summary FY2025"
+    },
+    {
+      "id": "source:cust01",
+      "title": "Top-10 Customer List"
+    },
+    {
+      "id": "source:contract01",
+      "title": "Master Subscription Agreement (excerpt)"
+    },
+    {
+      "id": "source:q01",
+      "title": "Q4 Summary"
+    }
+  ],
+  "notes": []
+}

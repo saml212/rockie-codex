@@ -1,0 +1,11 @@
+{
+  "id": "source:q01",
+  "title": "Q4 Summary",
+  "topics": [],
+  "full_text": "SYNTHETIC DATA -- FOR TESTING ONLY -- NOT A REAL COMPANY OR DEAL\n\nACME DATASYNC INC. -- QUARTERLY FLASH SUMMARY (SYNTHETIC Q4 2025)\n\nThis file lives in a SUBFOLDER (financials/) on purpose: it proves the\nreconcile pipeline reads nested documents, not just root-level ones. The ARR\nfigure below deliberately CONTRADICTS the root CIM and financial summary so a\ncross-folder delta is caught.\n\nAll figures in USD thousands unless a unit is shown.\n\nKEY METRICS (synthetic; management flash, pre-audit)\n----------------------------------------------------\nARR (as of 2025-12-31):     6,200   (management flash, pre-audit reconciliation)\nTotal Revenue:              8,200\nCustomers:                  103\nHeadcount:                  91      full-time employees (synthetic)\n\nNOTE: The 6,200 ARR here vs the ~7,100-7,400 stated in the root data room is a\nplanted, synthetic inconsistency for pipeline testing. All data is synthetic.\nDo not use for any real analysis.\n",
+  "truncated": false,
+  "asset": {
+    "url": null,
+    "file_path": "/data/uploads/t-95a34ff7c78c/Q-summary.txt"
+  }
+}

@@ -24,6 +24,11 @@ The packaging skill that turns "here is a model" into "here is an API your agent
 
 Both routes converge on the same 8-step orchestration below.
 
+If this skill needs Rockie-managed training, eval, synthetic-data, or
+other GPU job execution outside `POST /api/inference/loads`, route that
+work through `/experiment` and its `/budget-term-sheet` approval gate.
+Do not introduce raw `/api/jobs/submit` calls here.
+
 ## Read this before doing anything
 
 The skill reasons from a checked-in research corpus, not from re-Googling. **Before step 1 of any run, read all of:**
@@ -214,13 +219,21 @@ GET $ROCKIELAB_API_URL/api/inference/loads/<id>/endpoint
 
 Returns the Cloudflare-tunnel hostname + bearer token (4-outcome matrix: 404 = no load, 425 + Retry-After = not-ready, 200 + bearer = cache hit, 200 + null bearer = cache miss).
 
-The MCP tool registers **automatically** — `inference_tool_registry.list_active_inference_tools(tenant)` is polled by the mcp-rockie bridge, which emits `notifications/tools/list_changed` to the chat agent. The skill's job is to **confirm the tool surfaced**: wait up to 30s for `inference_<load_id>` to appear in the agent's MCP tool list. Once it does, tell the user the tool name + show one example invocation.
+The MCP tool registers **automatically** — `inference_tool_registry.list_active_inference_tools(tenant)` is polled by the mcp-rockie bridge, which emits `notifications/tools/list_changed` to the chat agent. The skill's job is to **confirm the tool surfaced**: wait up to 30s for `inference_<load_id>` to appear in the agent's MCP tool list.
 
-Example invocations to show, based on `modality`:
+Before reporting success, render the output in the lab:
 
-- `text-generation` / `chat`: *"Try it: ask me to call `inference_<id>` with `{prompt: 'haiku about rocks', max_tokens: 80}`."*
-- `text-embedding`: *"Try it: ask me to call `inference_<id>` with `{input: 'hello world'}` — returns a 384-dim vector."*
-- `image-segmentation`: *"Try it: ask me to call `inference_<id>` with `{image: <base64-png>, prompt: {text: 'yellow school bus'}}` — returns masks."*
+1. Resolve the current lab id. Use the runtime-provided `PLATFORM_LAB_ID` when it is configured, or the explicit lab/notebook id from the current chat context. Do not invent one.
+2. Run a bounded smoke inference through `inference_<load_id>` and pass `notebook_id` explicitly for every preview-producing modality. The dynamic inference tool strips this platform-only field before calling the model endpoint, but it needs the lab id to spool SAM-sized masks, images, audio, long generations, or large vectors into `output_assets`.
+3. Call `visualize_inference_result` with `notebook_id`, `load_id`, detected `modality`, bounded `response_body`, the original `request_body`, and any `output_assets` returned by `inference_<load_id>`.
+4. Report success only after `visualize_inference_result` returns a Note id. Tell the user the preview is in the lab Notes pane; do not make terminal JSON decoding the happy path.
+
+Smoke-call shapes, based on `modality`:
+
+- `text-generation` / `chat`: call `inference_<id>` with `{notebook_id: "<notebook:...>", prompt: "haiku about rocks", max_tokens: 80}`, then call `visualize_inference_result`.
+- `text-embedding`: call `inference_<id>` with `{notebook_id: "<notebook:...>", input: "hello world"}`, then render vector stats via `visualize_inference_result`.
+- `image-segmentation`: call `inference_<id>` with `{notebook_id: "<notebook:...>", image_base64: "<bounded-base64-png>", input_points: [[x, y]]}`. Use the returned `output_assets` for mask blobs; never paste raw SAM mask base64 into chat. Then call `visualize_inference_result` so the mask overlay appears as an `inference_preview` Note.
+- Unsupported or future modalities: still call `visualize_inference_result`; it creates a fallback raw-JSON preview Note with backend redaction.
 
 ### Step 8 — Affordances
 

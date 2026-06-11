@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "name": "release-notes-writer",
+  "goal": "Turn a list of merged pull requests into a clear, user-facing release-notes section grouped by Added / Changed / Fixed, with one plain-language line per change.",
+  "runtime": "fly-machine:kind=agent",
+  "model": "claude-opus-4-8",
+  "research_foundation": "gpt-researcher",
+  "capabilities": {
+    "tools": [
+      "github-mcp"
+    ],
+    "skills": [
+      "self-critic"
+    ],
+    "outputs": [
+      "markdown"
+    ]
+  },
+  "adversarial": {
+    "self_adversarial": true,
+    "ai_detection": false,
+    "max_rounds": 6,
+    "required_consecutive_passes": 2
+  },
+  "policies": [
+    "Never invent a change that is not backed by a merged PR title or body.",
+    "deny:internal-only",
+    "Group every change under exactly one of Added / Changed / Fixed."
+  ],
+  "provenance": {
+    "built_by": "agent-builder",
+    "built_at": "2026-06-05T08:27:12.371895+00:00"
+  }
+}

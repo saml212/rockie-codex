@@ -1,0 +1,121 @@
+{
+  "af_kind": "letta.agentfile",
+  "af_schema_version": "1.0",
+  "name": "release-notes-writer",
+  "goal": "Turn a list of merged pull requests into a clear, user-facing release-notes section grouped by Added / Changed / Fixed, with one plain-language line per change.",
+  "config": {
+    "schema_version": "1.0",
+    "name": "release-notes-writer",
+    "goal": "Turn a list of merged pull requests into a clear, user-facing release-notes section grouped by Added / Changed / Fixed, with one plain-language line per change.",
+    "runtime": "fly-machine:kind=agent",
+    "model": "claude-opus-4-8",
+    "research_foundation": "gpt-researcher",
+    "tools": [
+      "github-mcp"
+    ],
+    "policies": [
+      "Never invent a change that is not backed by a merged PR title or body.",
+      "deny:internal-only",
+      "Group every change under exactly one of Added / Changed / Fixed."
+    ],
+    "adversarial": {
+      "self_adversarial": true,
+      "ai_detection": false,
+      "max_rounds": 6,
+      "required_consecutive_passes": 2
+    },
+    "outputs": [
+      "markdown"
+    ]
+  },
+  "manifest": {
+    "schema_version": "1.0",
+    "name": "release-notes-writer",
+    "goal": "Turn a list of merged pull requests into a clear, user-facing release-notes section grouped by Added / Changed / Fixed, with one plain-language line per change.",
+    "runtime": "fly-machine:kind=agent",
+    "model": "claude-opus-4-8",
+    "research_foundation": "gpt-researcher",
+    "capabilities": {
+      "tools": [
+        "github-mcp"
+      ],
+      "skills": [
+        "self-critic"
+      ],
+      "outputs": [
+        "markdown"
+      ]
+    },
+    "adversarial": {
+      "self_adversarial": true,
+      "ai_detection": false,
+      "max_rounds": 6,
+      "required_consecutive_passes": 2
+    },
+    "policies": [
+      "Never invent a change that is not backed by a merged PR title or body.",
+      "deny:internal-only",
+      "Group every change under exactly one of Added / Changed / Fixed."
+    ],
+    "provenance": {
+      "built_by": "agent-builder",
+      "built_at": "2026-06-05T08:27:12.371895+00:00"
+    }
+  },
+  "constitution": "# release-notes-writer \u2014 agent constitution\n\n## Declared goal\n\nTurn a list of merged pull requests into a clear, user-facing release-notes section grouped by Added / Changed / Fixed, with one plain-language line per change.\n\nThis file is the agent's constitution. The goal above is the single thing this\nagent exists to achieve; every skill, tool, hook, and policy below serves it.\n\n## Runtime\n\n- Runtime: `fly-machine:kind=agent`\n- Model: `claude-opus-4-8`\n- Research foundation: `gpt-researcher`\n- Tools wired: github-mcp\n\nConfiguration lives in `agent.config.json` (the versioned, per-customer config).\nThis `CLAUDE.md` + `.claude/` is the stable harness; the config is what changes\nbetween customers and versions. Do not hardcode goal/model/tool choices here that\nbelong in the config.\n\n## Policies (declared)\n\n- Never invent a change that is not backed by a merged PR title or body.\n- deny:internal-only\n- Group every change under exactly one of Added / Changed / Fixed.\n\nPolicy statements are enforced by the hook in `.claude/hooks/policy_gate.py`\nwhere mechanical, and by the agent's own judgment otherwise. A policy is a\npromise; breaking one is a failure even if the task technically completes.\n\n## Self-adversarial discipline\n\nThis agent SHIPS its OWN internal adversarial critic. Before any\ndeliverable is returned, run `.claude/skills/self-critic/critic_loop.py`\nover the draft: a fresh, no-memory domain critic\n(`.claude/skills/self-critic/domain-critic.md`) must pass it TWICE\nconsecutively with zero CRITICALs. The clean-pass counter resets on any\nfailed round. Never return a deliverable that has not converged.\n\n## Proven execution\n\n`tests/` holds proven-execution tests. Do not declare a run successful on\nreasoning alone \u2014 run the tests and confirm they pass.\n",
+  "mcp": {
+    "mcpServers": {
+      "github-mcp": {
+        "command": "REPLACE_WITH_LAUNCH_COMMAND",
+        "args": [],
+        "env": {},
+        "_note": "MCP server 'github-mcp' declared for goal: wire its launch command."
+      }
+    }
+  },
+  "policies": [
+    "Never invent a change that is not backed by a merged PR title or body.",
+    "deny:internal-only",
+    "Group every change under exactly one of Added / Changed / Fixed."
+  ],
+  "skills": [
+    {
+      "path": ".claude/skills/self-critic/SKILL.md",
+      "content": "---\nname: self-critic\ndescription: This agent's own internal adversarial critic loop. Hardens every deliverable with a fresh no-memory domain critic until it passes twice consecutively with zero CRITICALs before return.\n---\n\n# self-critic \u2014 the agent's internal adversarial flow\n\nThis skill is wired in by default (the agent-builder is biased to emit\nself-adversarial agents). Before this agent returns ANY deliverable for the\ngoal below, harden it here.\n\n## Goal under guard\n\n> Turn a list of merged pull requests into a clear, user-facing release-notes section grouped by Added / Changed / Fixed, with one plain-language line per change.\n\n## How to run\n\n1. Produce a draft deliverable.\n2. Run `critic_loop.py` with the domain critic (`domain-critic.md`) as a fresh,\n   no-memory reviewer of the draft.\n3. On any CRITICAL: apply the cited fixes, re-run. The clean-pass counter resets\n   to zero on any failed round.\n4. Converge only on TWO consecutive zero-CRITICAL passes (cap: MAX_ROUNDS=6).\n   Never return a deliverable that has not converged.\n\nPrefer the subagent mode (a fresh subagent per round). When the agent cannot\nspawn subagents, use the single-process fallback with a hard context reset\nbetween rounds \u2014 weaker isolation, same termination rules.\n\nProve the loop logic any time with `critic_loop.py --selftest`.\n"
+    },
+    {
+      "path": ".claude/skills/self-critic/critic_loop.py",
+      "content": "#!/usr/bin/env python3\n\"\"\"critic_loop.py -- this agent's OWN internal adversarial critic loop.\n\nLINEAGE: minimal copy of the proven diligence-deck/critic_loop.py engine\n(2-consecutive-clean-pass gate, counter resets on any failed round,\nMAX_ROUNDS cap, CRITICAL blocks PASS, subagent + single-process modes). It is\ncopied (not imported) because a portable agent repo must stand alone. Keep it\nin sync with the canonical engine if that one changes.\n\nA fresh, no-memory DOMAIN critic (domain-critic.md) reads only the rubric + the\ndraft deliverable and returns PASS or structured violations; the agent fixes\nthem; the loop re-runs until two consecutive zero-CRITICAL passes or the cap.\n\n    critic_loop.py --selftest    # deterministic loop-logic proof, mocked verdicts\n\"\"\"\nfrom __future__ import annotations\nimport argparse\nimport sys\nfrom dataclasses import dataclass, field, asdict\nfrom typing import Callable, Optional\n\nMAX_ROUNDS = 6\nREQUIRED_CONSECUTIVE_PASSES = 2\nCRITICAL, MAJOR, MINOR = \"critical\", \"major\", \"minor\"\n_SEVERITIES = {CRITICAL, MAJOR, MINOR}\n\n\nclass CriticVerdictError(ValueError):\n    pass\n\n\ndef validate_verdict(raw: dict) -> dict:\n    \"\"\"Re-derive pass from zero-CRITICALs; never trust the critic's self-report.\"\"\"\n    if not isinstance(raw, dict):\n        raise CriticVerdictError(\"verdict must be an object\")\n    if \"violations\" not in raw or not isinstance(raw[\"violations\"], list):\n        raise CriticVerdictError(\"verdict.violations must be a list\")\n    cleaned = []\n    for i, v in enumerate(raw[\"violations\"]):\n        if not isinstance(v, dict):\n            raise CriticVerdictError(f\"violations[{i}] must be an object\")\n        for k in (\"check\", \"severity\", \"where\", \"fix\"):\n            if k not in v:\n                raise CriticVerdictError(f\"violations[{i}] missing '{k}'\")\n        sev = str(v[\"severity\"]).lower()\n        if sev not in _SEVERITIES:\n            raise CriticVerdictError(f\"violations[{i}].severity invalid\")\n        cleaned.append({\"check\": v[\"check\"], \"severity\": sev,\n                        \"where\": v[\"where\"], \"fix\": v[\"fix\"]})\n    derived = not any(v[\"severity\"] == CRITICAL for v in cleaned)\n    return {\"pass\": derived, \"violations\": cleaned}\n\n\n@dataclass\nclass RoundRecord:\n    round: int\n    passed: bool\n    n_critical: int\n    consecutive_passes_after: int\n\n\n@dataclass\nclass LoopResult:\n    converged: bool\n    rounds_run: int\n    mode: str\n    rounds: list = field(default_factory=list)\n    reason: str = \"\"\n\n    def to_dict(self):\n        return asdict(self)\n\n\nCritic = Callable[[dict, int], dict]\n\n\ndef run_critic_loop(draft_path, critic, *, mode=\"single\", fixer=None,\n                    max_rounds=MAX_ROUNDS,\n                    required_consecutive=REQUIRED_CONSECUTIVE_PASSES,\n                    verbose=True) -> LoopResult:\n    if mode not in (\"subagent\", \"single\"):\n        raise ValueError(\"mode must be 'subagent' or 'single'\")\n    ctx = {\"draft_path\": draft_path, \"mode\": mode,\n           \"isolation_label\": \"single-process\" if mode == \"single\" else \"subagent\"}\n    result = LoopResult(converged=False, rounds_run=0, mode=mode)\n    consecutive = 0\n    for rnd in range(1, max_rounds + 1):\n        verdict = validate_verdict(critic(ctx, rnd))\n        ncrit = sum(1 for v in verdict[\"violations\"] if v[\"severity\"] == CRITICAL)\n        passed = verdict[\"pass\"]\n        consecutive = consecutive + 1 if passed else 0  # RESET ON FAIL\n        result.rounds.append(RoundRecord(rnd, passed, ncrit, consecutive))\n        result.rounds_run = rnd\n        if verbose:\n            print(f\"[round {rnd}] {'PASS' if passed else 'FAIL'} \"\n                  f\"criticals={ncrit} consecutive={consecutive}/{required_consecutive}\")\n        if consecutive >= required_consecutive:\n            result.converged = True\n            result.reason = f\"converged: {required_consecutive} clean rounds at {rnd}\"\n            return result\n        if verdict[\"violations\"] and fixer:\n            fixer(ctx, verdict[\"violations\"])\n    result.reason = f\"NOT CONVERGED: hit MAX_ROUNDS={max_rounds}\"\n    if verbose:\n        print(result.reason, file=sys.stderr)\n    return result\n\n\ndef make_subagent_critic(dispatch):\n    return lambda ctx, rnd: dispatch(ctx, rnd)\n\n\ndef make_single_process_critic(reason_pass):\n    return lambda ctx, rnd: reason_pass(dict(ctx, isolation_label=\"single-process\"), rnd)\n\n\ndef _selftest() -> int:\n    fails = []\n\n    def chk(name, cond):\n        print(f\"  [{'ok' if cond else 'FAIL'}] {name}\")\n        if not cond:\n            fails.append(name)\n\n    clean = {\"pass\": True, \"violations\": []}\n    crit = {\"pass\": False, \"violations\": [{\"check\": \"goal\", \"severity\": \"critical\",\n            \"where\": \"x\", \"fix\": \"y\"}]}\n    scripted = lambda seq: (lambda ctx, rnd: seq[rnd - 1])\n\n    r = run_critic_loop(\"d\", scripted([clean, crit, clean, clean]),\n                        mode=\"single\", verbose=False)\n    chk(\"FAIL resets counter -> converges at round 4\", r.converged and r.rounds_run == 4)\n    r2 = run_critic_loop(\"d\", scripted([clean, clean]), mode=\"single\", verbose=False)\n    chk(\"two clean rounds converge at 2\", r2.converged and r2.rounds_run == 2)\n    r3 = run_critic_loop(\"d\", scripted([clean, crit] * MAX_ROUNDS),\n                         mode=\"single\", verbose=False)\n    chk(\"cap fails loudly\", (not r3.converged) and r3.rounds_run == MAX_ROUNDS)\n    lying = {\"pass\": True, \"violations\": [crit[\"violations\"][0]]}\n    chk(\"CRITICAL blocks claimed pass\", validate_verdict(lying)[\"pass\"] is False)\n    print(\"ALL SELFTESTS PASSED\" if not fails else f\"FAILURES: {fails}\")\n    return 0 if not fails else 1\n\n\ndef main(argv=None) -> int:\n    p = argparse.ArgumentParser(description=__doc__,\n                                formatter_class=argparse.RawDescriptionHelpFormatter)\n    p.add_argument(\"--selftest\", action=\"store_true\")\n    args = p.parse_args(argv)\n    if args.selftest:\n        return _selftest()\n    p.print_help()\n    return 0\n\n\nif __name__ == \"__main__\":\n    raise SystemExit(main())\n"
+    },
+    {
+      "path": ".claude/skills/self-critic/domain-critic.md",
+      "content": "# domain-critic \u2014 this agent's internal adversary (one round)\n\nYou are a fresh, skeptical domain expert reviewing a draft deliverable produced\nby an agent whose declared goal is:\n\n> Turn a list of merged pull requests into a clear, user-facing release-notes section grouped by Added / Changed / Fixed, with one plain-language line per change.\n\nYou have **no memory of any prior round** and did not write any of this. A\nreview that says \"looks good\" without checking is a failed review. Find every\nreason the draft does NOT achieve the declared goal, then return the verdict.\n\n## Grade against (in order)\n\n1. **Goal achievement.** Does the draft actually accomplish the declared goal,\n   or only gesture at it? A draft that misses the goal = CRITICAL.\n2. **Soundness.** Are the claims / steps / outputs correct and internally\n   consistent? A false or self-contradictory core claim = CRITICAL.\n3. **Evidence.** Are assertions backed (cited, computed, demonstrated) rather\n   than asserted? Unsupported load-bearing claim = MAJOR (CRITICAL if the whole\n   deliverable rests on it).\n4. **Policy adherence.** Does the draft respect every declared policy? A\n   violated policy = CRITICAL.\n5. **Slop.** Hedges, padding, vague titles, asymmetric depth = MAJOR.\n\n## Verdict (STRICT JSON, nothing else)\n\n`pass` is true ONLY if there are zero `critical` violations.\n\n```json\n{\n  \"pass\": false,\n  \"violations\": [\n    {\"check\": \"goal_achievement\", \"severity\": \"critical\",\n      \"where\": \"section / claim\", \"fix\": \"concrete bounded action\"}\n  ]\n}\n```\n\n`severity` is one of `critical | major | minor`. `fix` is a concrete action,\nnot \"improve this\". Output only the JSON object and stop.\n"
+    }
+  ],
+  "hooks": [
+    {
+      "path": ".claude/hooks/policy_gate.py",
+      "content": "#!/usr/bin/env python3\n\"\"\"policy_gate.py -- PreToolUse safeguard hook for a built agent.\n\nReads the Claude-Code hook event JSON from stdin, loads the agent's declared\npolicies from agent.config.json, and BLOCKS the tool call (exit 2 + reason on\nstderr) when it matches a declared deny-pattern. This is the mechanical half of\npolicy enforcement; judgment policies are enforced by the agent itself.\n\nA policy string of the form 'deny:<substring>' blocks any tool input whose\nJSON contains <substring>. All other policy strings are advisory (surfaced, not\nblocked). This keeps the hook honest: it only blocks what was explicitly\ndeclared blockable, and never silently permits a declared deny.\n\"\"\"\nimport json\nimport os\nimport sys\n\n\ndef _load_policies():\n    here = os.path.dirname(os.path.abspath(__file__))\n    cfg_path = os.path.join(here, \"..\", \"..\", \"agent.config.json\")\n    try:\n        with open(cfg_path, encoding=\"utf-8\") as fh:\n            return json.load(fh).get(\"policies\", [])\n    except (OSError, ValueError):\n        return []\n\n\ndef main():\n    raw = sys.stdin.read()\n    try:\n        event = json.loads(raw) if raw.strip() else {}\n    except ValueError:\n        event = {}\n    payload = json.dumps(event.get(\"tool_input\", event), ensure_ascii=False)\n    for pol in _load_policies():\n        if isinstance(pol, str) and pol.startswith(\"deny:\"):\n            needle = pol[len(\"deny:\"):].strip()\n            if needle and needle in payload:\n                sys.stderr.write(\n                    f\"policy_gate: blocked by declared policy '{pol}'\\n\"\n                )\n                return 2\n    return 0\n\n\nif __name__ == \"__main__\":\n    raise SystemExit(main())\n"
+    }
+  ],
+  "policy_files": [
+    {
+      "path": "policies/policy-01.md",
+      "content": "# Policy 1\n\n**Statement:** Never invent a change that is not backed by a merged PR title or body.\n\nThis is a declared policy for the agent. Where it is mechanically enforceable\n(e.g. `deny:<substring>`), `.claude/hooks/policy_gate.py` blocks violating tool\ncalls. Otherwise the agent enforces it by judgment. Breaking this policy is a\nrun failure even if the task otherwise completes.\n"
+    },
+    {
+      "path": "policies/policy-02.md",
+      "content": "# Policy 2\n\n**Statement:** deny:internal-only\n\nThis is a declared policy for the agent. Where it is mechanically enforceable\n(e.g. `deny:<substring>`), `.claude/hooks/policy_gate.py` blocks violating tool\ncalls. Otherwise the agent enforces it by judgment. Breaking this policy is a\nrun failure even if the task otherwise completes.\n"
+    },
+    {
+      "path": "policies/policy-03.md",
+      "content": "# Policy 3\n\n**Statement:** Group every change under exactly one of Added / Changed / Fixed.\n\nThis is a declared policy for the agent. Where it is mechanically enforceable\n(e.g. `deny:<substring>`), `.claude/hooks/policy_gate.py` blocks violating tool\ncalls. Otherwise the agent enforces it by judgment. Breaking this policy is a\nrun failure even if the task otherwise completes.\n"
+    }
+  ],
+  "tests": [
+    {
+      "path": "tests/test_agent.py",
+      "content": "#!/usr/bin/env python3\n\"\"\"test_agent.py -- proven-execution tests for: release-notes-writer\n\nGoal under test: Turn a list of merged pull requests into a clear, user-facing release-notes section grouped by Added / Changed / Fixed, with one plain-language line per change.\n\nThese are STRUCTURAL proofs that the scaffolded agent is well-formed and that\nits self-adversarial engine actually runs. Domain behavior tests are added by\nthe builder as the agent grows; this file guarantees the harness itself works.\n\n    python3 tests/test_agent.py        # exit 0 on pass\n\"\"\"\nimport json\nimport os\nimport subprocess\nimport sys\n\nROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\n\n\ndef _exists(rel):\n    assert os.path.exists(os.path.join(ROOT, rel)), f\"missing required path: {rel}\"\n\n\ndef test_repo_shape():\n    for rel in (\"CLAUDE.md\", \"agent.config.json\", \"manifest.json\", \".mcp.json\"):\n        _exists(rel)\n\n\ndef test_config_declares_goal():\n    with open(os.path.join(ROOT, \"agent.config.json\"), encoding=\"utf-8\") as fh:\n        cfg = json.load(fh)\n    assert cfg.get(\"goal\"), \"config.goal must be non-empty\"\n\n\ndef test_self_critic_engine_runs():\n    \"\"\"If this agent ships a self-critic, its loop engine must pass --selftest.\"\"\"\n    loop = os.path.join(ROOT, \".claude\", \"skills\", \"self-critic\", \"critic_loop.py\")\n    if not os.path.exists(loop):\n        print(\"  (self-critic opted out; skipping engine selftest)\")\n        return\n    r = subprocess.run([sys.executable, loop, \"--selftest\"],\n                       capture_output=True, text=True)\n    assert r.returncode == 0, f\"self-critic engine selftest failed:\\n{r.stdout}{r.stderr}\"\n\n\ndef main():\n    tests = [test_repo_shape, test_config_declares_goal, test_self_critic_engine_runs]\n    for t in tests:\n        t()\n        print(f\"  [ok] {t.__name__}\")\n    print(\"ALL PROVEN-EXECUTION TESTS PASSED\")\n    return 0\n\n\nif __name__ == \"__main__\":\n    raise SystemExit(main())\n"
+    }
+  ]
+}

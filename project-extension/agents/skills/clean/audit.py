@@ -8,10 +8,11 @@ Three tracks, changed-files-only:
     TODO/FIXME markers, stale time-sensitive phrases
   - AI slop prompt: returned in the report for the agent to action
 
-On zero-blocker pass, hands off to .codex/scripts/clean-finalize.sh,
-which writes the sentinel .codex/.state/clean-ok-<hash> AND emits the
+On zero-blocker pass, hands off to
+${OPENCLAW_WORKSPACE_DIR}/scripts/clean-finalize.sh, which writes the
+sentinel ${OPENCLAW_WORKSPACE_DIR}/.state/clean-ok-<hash> AND emits the
 upstream-contribute nudge to stderr. The pre-commit-gate hook reads
-the sentinel.
+this sentinel.
 
 Exit codes:
   0  zero blockers (sentinel written)
@@ -96,9 +97,9 @@ def audit_shell(f):
 def audit_markdown(f, is_new, repo_root):
     issues = []
     # Block creation of new .md files — user's rule for this repo.
-    # Exempt: harness infrastructure (.codex/**) where .md files are
-    # skill/agent definitions required to exist.
-    if is_new and not f.startswith(".codex/"):
+    # Exempt: harness infrastructure (.codex/** legacy or .openclaw/**)
+    # where .md files are skill/agent definitions required to exist.
+    if is_new and not (f.startswith(".codex/") or f.startswith(".openclaw/")):
         issues.append((
             f, "blocker",
             "NEW .md file. Repo convention: consolidate into existing docs. "
@@ -148,7 +149,11 @@ def audit_markdown(f, is_new, repo_root):
 
 
 def compute_hash():
-    r = run(["bash", ".codex/scripts/compute_clean_hash.sh"])
+    ws = os.environ.get("OPENCLAW_WORKSPACE_DIR")
+    if not ws:
+        print("compute_hash: OPENCLAW_WORKSPACE_DIR unset", file=sys.stderr)
+        sys.exit(2)
+    r = run(["bash", f"{ws}/scripts/compute_clean_hash.sh"])
     return r.stdout.strip()
 
 
@@ -216,14 +221,16 @@ def main():
     if not blockers:
         h = compute_hash()
         if h and h != "no-changes":
-            # Final action: hand off to clean-finalize.sh. The script
-            # writes the sentinel AND emits the upstream-contribute
-            # nudge to stderr (deterministic, every successful audit).
-            # Don't capture stderr here — let it flow through to the
-            # agent's context.
+            # Delegate sentinel write + upstream-contribute nudge to
+            # clean-finalize.sh so the nudge is deterministic (not
+            # prose-only in SKILL.md) and the sentinel format stays in
+            # one place shared with pre-commit-gate.sh.
+            ws = os.environ.get("OPENCLAW_WORKSPACE_DIR")
+            if not ws:
+                print("clean: OPENCLAW_WORKSPACE_DIR unset", file=sys.stderr)
+                sys.exit(2)
             r = subprocess.run(
-                ["bash", ".codex/scripts/clean-finalize.sh", h],
-                capture_output=False,
+                ["bash", f"{ws}/scripts/clean-finalize.sh", h],
                 text=True,
             )
             if r.returncode != 0:

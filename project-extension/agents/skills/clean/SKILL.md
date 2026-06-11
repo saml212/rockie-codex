@@ -18,7 +18,7 @@ kind hurts. The audit covers both.
 
 ## What the skill does
 
-1. Runs `.agents/skills/clean/audit.py`. Arguments:
+1. Runs `${OPENCLAW_SKILLS_DIR}/clean/audit.py`. Arguments:
    - `--scope staged` (default) — audits files in `git diff --cached --name-only`
    - `--scope dirty` — audits all modified + untracked non-gitignored files
 2. The audit reports findings in three buckets:
@@ -26,18 +26,17 @@ kind hurts. The audit covers both.
      cleanup runs, broken internal doc links, obvious debug artifacts,
      syntax errors)
    - **Warnings** — should review (TODO markers pointing to resolved work,
-     duplicate content across docs, rules contradicting `.codex/memory/workflow.db`)
+     duplicate content across docs, rules contradicting `${OPENCLAW_WORKSPACE_DIR}/memory/workflow.db`)
    - **Info** — worth knowing (file size growth, complexity spikes)
 3. If zero blockers: the audit invokes
-   `.codex/scripts/clean-finalize.sh <hash>` as its final action.
-   That script writes `.codex/.state/clean-ok-<hash>` (where
-   `<hash>` is computed by `.codex/scripts/compute_clean_hash.sh`)
-   AND prints the upstream-contribute nudge to stderr. The
-   pre-commit-gate hook recomputes the same hash and requires the
-   sentinel to exist.
+   `${OPENCLAW_WORKSPACE_DIR}/scripts/clean-finalize.sh <hash>` as its final
+   action. That script writes `${OPENCLAW_WORKSPACE_DIR}/.state/clean-ok-<hash>`
+   (where `<hash>` is computed by
+   `${OPENCLAW_WORKSPACE_DIR}/scripts/compute_clean_hash.sh`) AND emits the
+   upstream-contribute nudge to stderr. The pre-commit-gate hook recomputes the
+   same hash and requires the sentinel to exist.
 4. If blockers exist: the skill reports them and does NOT call
-   `clean-finalize.sh`, so no sentinel and no nudge. Agent fixes,
-   reruns.
+   `clean-finalize.sh`, so no sentinel and no nudge. Agent fixes, reruns.
 
 ## Hard rules for this repo specifically
 
@@ -65,7 +64,7 @@ The hook honors this. Don't use it routinely.
 
 When this skill fires, the agent should:
 
-1. Run `python3 .agents/skills/clean/audit.py --scope staged` (or `--scope dirty` if nothing is staged yet).
+1. Run `python3 ${OPENCLAW_SKILLS_DIR}/clean/audit.py --scope staged` (or `--scope dirty` if nothing is staged yet).
 2. Read the JSON report on stdout.
 3. For each blocker, fix the underlying issue (remove stray `console.log`, delete the new `.md` file, repair the broken link, etc.).
 4. For warnings, apply judgment — fix if obvious, leave for user if contested.
@@ -81,12 +80,12 @@ report in human-readable form and wait for their direction on fixes.
 The final action of `$clean` (zero-blocker path) is:
 
 ```bash
-bash .codex/scripts/clean-finalize.sh <hash>
+bash ${OPENCLAW_WORKSPACE_DIR}/scripts/clean-finalize.sh <hash>
 ```
 
 `audit.py` already invokes this for the agent. The script:
 
-1. Writes the audit sentinel at `.codex/.state/clean-ok-<hash>` in
+1. Writes the audit sentinel at `${OPENCLAW_WORKSPACE_DIR}/.state/clean-ok-<hash>` in
    the format `pre-commit-gate.sh` expects.
 2. Emits the upstream-contribute nudge to **stderr**. Per Codex CLI's
    EVENT-MAPPING, stderr from hooks/scripts surfaces directly to the
@@ -107,4 +106,3 @@ user-driven.
 
 If a blocker is present, the audit exits non-zero before reaching
 `clean-finalize.sh`, so no sentinel is written and no nudge fires.
-

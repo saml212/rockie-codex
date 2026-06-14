@@ -1,0 +1,32 @@
+# exploratory — for following surprises, broad reading, no deadline pressure.
+# Optimized for: fast iteration, tolerated noise, breadth over depth.
+name = "exploratory"
+description = "No scope lock. Broad reading. Sonnet-first for speed. Lab-notebook register."
+
+[hardware]
+spot_only = true
+on_demand_allowed = false
+gpu_budget_dollars_per_session = 30
+
+[reading]
+recency_window_months = 18
+# No focus_arxiv_categories — all areas in scope.
+
+[methodology]
+allow_negative_result = true
+# success_criteria_override unset — central corpus rules apply.
+
+[risk]
+sanity_check_above_dollars = 25
+session_max_dollars = 60
+require_smoke_before_real_run = true
+
+[output]
+register = "lab-notebook"
+
+[workflow]
+scope_lock = false
+require_clean_before_commit = false  # tinker freely; clean only before merge
+require_audit_subagent_before_train = false
+prefer_sonnet_for = ["brainstorm", "research", "fix-list"]
+prefer_opus_for = ["attack-on-bold-claim"]

@@ -1,0 +1,4 @@
+# default mode — no overlay. Use this when nothing should override the
+# central taste corpus.
+name = "default"
+description = "Baseline: no overrides. Central taste corpus is canonical."

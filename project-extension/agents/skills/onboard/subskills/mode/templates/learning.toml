@@ -1,0 +1,27 @@
+# learning — for educational sessions where the researcher is building
+# fundamentals, not running production experiments. Agent should explain
+# more, gate less, route Opus to teaching-quality explanation.
+name = "learning"
+description = "Teaching register. Methodology gates relaxed. Opus for explanations."
+
+[reading]
+recency_window_months = 60   # textbooks and foundational papers welcome
+prefer_venues = ["JMLR", "NeurIPS", "ICLR", "Nature", "textbook"]
+
+[methodology]
+allow_negative_result = true
+
+[risk]
+sanity_check_above_dollars = 5
+session_max_dollars = 15
+require_smoke_before_real_run = false   # learning experiments may be tiny
+
+[output]
+register = "teaching"
+
+[workflow]
+scope_lock = false
+require_clean_before_commit = false
+require_audit_subagent_before_train = false
+prefer_opus_for = ["explanation", "first-principles-derivation", "concept-attack"]
+prefer_sonnet_for = ["code-completion", "lookup"]

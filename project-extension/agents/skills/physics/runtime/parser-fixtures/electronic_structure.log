@@ -1,0 +1,9 @@
+iteration # 1     estimated scf accuracy < 1.2e-3
+iteration # 2     estimated scf accuracy < 2.5e-7
+!    total energy              =     -15.873521 Ry
+     total force = 0.00041
+smearing width = 0.01
+occupation spread = 0.002
+smearing occupancy warnings = 1
+warning: smearing/occupancy should be reviewed for metallic assumptions
+JOB DONE. converged

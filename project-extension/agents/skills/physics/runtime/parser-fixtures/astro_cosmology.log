@@ -1,0 +1,5 @@
+simulation time = 0.05 redshift = 9.8 conserved quantity drift = 2.0e-5
+particle cell count = 4096 checkpoint freshness = 120
+simulation time = 0.10 redshift = 9.7 conserved quantity drift = 3.5e-5
+particle cell count = 4096 checkpoint freshness = 180
+warning: load balance drift above smoke review threshold

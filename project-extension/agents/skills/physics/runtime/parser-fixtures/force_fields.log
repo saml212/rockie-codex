@@ -1,0 +1,8 @@
+parameterization status = review_required
+missing parameters = 1
+parameter provenance records = 12
+charge assignment = AM1-BCC
+water ion compatibility = checked
+minimization result = planned_not_executed
+minimization rms force = 0.42
+provenance warning: one torsion source needs domain review

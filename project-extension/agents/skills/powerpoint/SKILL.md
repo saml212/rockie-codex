@@ -1,6 +1,9 @@
 ---
 name: powerpoint
 description: Create validated PowerPoint `.pptx` deck artifacts through the lean Rockie PPTAgent wrapper and emit them to the lab.
+scope: community
+contributor_name: Elias Ward
+contributed_at: "2026-03-22"
 ---
 
 # powerpoint

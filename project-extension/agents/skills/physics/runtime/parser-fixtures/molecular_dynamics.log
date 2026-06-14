@@ -1,0 +1,7 @@
+Step 10 Temp = 298.5 Press = 1.02 TotEng = -1234.5 EnergyDrift = 0.01
+Step 20 Temp = 300.1 Press = 0.98 TotEng = -1234.4 EnergyDrift = 0.02
+timestep = 1.0 trajectory freshness = 5
+neighbor-list warnings = 1
+neighbor-list warning: rebuild interval should be reviewed
+constraint warnings = 1
+constraint warning: SHAKE tolerance close to smoke threshold

@@ -1,0 +1,2 @@
+batch 5 histories = 10000 tallies = 2 relative error = 0.035 shannon entropy = 6.21 missing cross-section data = 0
+batch 10 histories = 20000 tallies = 2 relative error = 0.021 shannon entropy = 6.25 missing cross-section data = 0

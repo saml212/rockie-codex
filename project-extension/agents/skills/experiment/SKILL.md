@@ -1,6 +1,6 @@
 ---
 name: experiment
-description: Run a materials-science / ML compute job on Rockie GPU capacity. Trigger words "run experiment", "submit job", "use the experiment skill". Picks the right GPU type and count from a natural-language description (DFT for QE/VASP/ABINIT, MD for GROMACS/LAMMPS/OpenMM, training for PyTorch/JAX), generates the script, routes Rockie-originated submits through the budget-term-sheet skill plus `runtime/submit.py`, polls status, streams logs, and surfaces the final artifacts. Use this for anything that needs a GPU — single A100 up to multi-pod B200 clusters.
+description: Run a materials-science / ML compute job on Rockie GPU capacity. Trigger words "run experiment", "submit job", "use the experiment skill", or requests to quote/approve GPU spend before an experiment. Picks the right GPU type and count from a natural-language description (DFT for QE/VASP/ABINIT, MD for GROMACS/LAMMPS/OpenMM, training for PyTorch/JAX), generates the script, routes Rockie-originated submits through the embedded budget-term-sheet gate plus `runtime/submit.py`, polls status, streams logs, and surfaces the final artifacts. Use this for anything that needs a GPU — single A100 up to multi-pod B200 clusters.
 ---
 
 # experiment — submit a GPU job
@@ -20,28 +20,21 @@ If the task is local-only (pre-processing, data wrangling, plotting),
 do NOT use the experiment skill — run it inline. The skill is for
 GPU-bound work that the user is willing to pay GPU credit for.
 
-## First-experiment GPU-mode disclosure
+## First-experiment GPU disclosure
 
-Before submitting the user's FIRST experiment in a workspace (i.e.
-neither `.codex/gpu-custom.md` exists nor
-`$ROCKIE_GPU_MODE` is set), the agent emits **one neutral sentence**
-before proceeding:
+Before submitting the user's FIRST experiment in a workspace, the agent
+emits **one neutral sentence** before proceeding:
 
-> Your options are Rockie GPU (Rockie provisions the pod and the
-> per-hour price it quotes already includes everything) or your own
-> hardware (`ROCKIE_GPU_MODE=custom` then ask Codex to run
-> gpu-custom-setup). Default is Rockie GPU — proceeding with that
-> unless you say otherwise.
+> Rockie provisions the GPU pod for this experiment, and the per-hour price
+> it quotes already includes the platform overhead; proceeding unless you
+> want to change the scope.
 
 That's the entire disclosure. Do NOT:
 - repeat it on subsequent experiments
 - pitch Rockie GPU with adjectives like "easy" or "best"
 - compare to specific competitors by name
+- offer BYO mode, user-provided GPU mode, or a router bypass
 - nag if the user is quiet — just proceed with Rockie GPU
-
-The user can opt into custom mode at any time by setting
-`ROCKIE_GPU_MODE=custom`; the next experiment run will see the env
-and trigger gpu-custom-setup for the one-time flow audit.
 
 ## Picking GPU shape
 
@@ -71,12 +64,12 @@ Always end the script with: tar the results dir to `/workspace/results.tar.gz`, 
 
 ## Submitting
 
-Before any Rockie-originated submit, invoke the budget-term-sheet skill,
-render the quote, and wait for explicit user approval. Hand the approved
-JSON artifact to `runtime/submit.py` (don't shell out to curl directly —
-the helper handles the credit-balance pre-check, the state-machine
-polling, the SSE log tail, the budget-term-sheet gate, and the dashboard
-Note metadata/profile snapshot packaging):
+Before any Rockie-originated submit, invoke the embedded budget-term-sheet
+subskill, render the quote, and wait for explicit user approval. Hand the
+approved JSON artifact to `runtime/submit.py` (don't shell out to curl
+directly — the helper handles the credit-balance pre-check, the
+state-machine polling, the SSE log tail, the budget-term-sheet gate, and
+the dashboard Note metadata/profile snapshot packaging):
 
 ```bash
 python3 ${SKILL_DIR}/runtime/submit.py \
@@ -114,6 +107,24 @@ Budget gate contract:
 - Optional `--budget-cents` is only an assertion and must exactly equal
   the approved term sheet's `user_budget_cents`.
 
+### Budget-term-sheet subskill
+
+The pre-submit quote/approval flow lives at
+`${SKILL_DIR}/subskills/budget-term-sheet/` instead of as a top-level
+skill. Use its scripts directly when the user asks for a dry-run quote,
+changes a budget, or is about to submit Rockie-authored GPU work:
+
+```bash
+python3 ${SKILL_DIR}/subskills/budget-term-sheet/scripts/quote_term_sheet.py \
+    --job-spec-json /tmp/job-spec.json \
+    > /tmp/term-sheet.json
+python3 ${SKILL_DIR}/subskills/budget-term-sheet/scripts/render_term_sheet.py \
+    --term-sheet-json /tmp/term-sheet.json
+python3 ${SKILL_DIR}/subskills/budget-term-sheet/scripts/parse_approval.py \
+    --estimate-cents 20000 \
+    --reply "I approve"
+```
+
 Dashboard Note contract:
 
 - Pass `--notebook-id <notebook:...>` when the run belongs to a lab note flow.
@@ -145,6 +156,49 @@ curl -s "$ROCKIELAB_API_URL/api/jobs/${JOB_ID}/artifacts" \
 
 Each artifact has a `signed_url` (1h TTL). Surface them to the user
 with sizes; do NOT auto-download large files unless asked.
+
+## Parent-owned monitor contract
+
+The experiment skill owns monitoring for the GPU jobs it submits. Status
+summaries and dashboard patches should normalize to this shared contract:
+
+```json
+{
+  "monitor_owner": "experiment",
+  "monitor_target": {"kind": "job", "id": "job-123"},
+  "state": "queued|running|loaded|done|failed|cancelled|unknown",
+  "utilization": {
+    "state": "live|unavailable|not_applicable",
+    "reason_code": "telemetry_not_exposed|null"
+  },
+  "spend": {
+    "state": "live|settled|partial|unavailable",
+    "reason_code": "spend_not_exposed|spend_budget_only|null"
+  },
+  "artifacts": {
+    "dashboard_note_id": "note:dash/1",
+    "profile_id": "experiment.ml_baseline.v1",
+    "profile_snapshot_present": true
+  }
+}
+```
+
+Keep spend and utilization independent. When the job status API does not
+expose live utilization, return `utilization.state: "unavailable"` with
+`reason_code: "telemetry_not_exposed"` rather than fake zeroes. Queue,
+running, and terminal polls should preserve the same envelope and keep
+dashboard metadata attached when it exists, but do not forward raw
+sensitive `artifact_path` values in the outward monitor envelope. Treat
+`cost_so_far_cents` or `cost_actual_cents` as observed spend. Budget or
+hourly-rate guidance without observed spend must never look live; return
+`spend.state: "partial"` with `reason_code: "spend_budget_only"` until
+observed spend arrives. When only terminal `cost_actual_cents` is
+present, return `spend.state: "settled"` with a null `reason_code`
+instead of claiming the spend is live. Preserve legitimate zero values.
+
+The shared runtime may still emit upstream `LOADED` for a running job;
+the monitor contract normalizes that to `loaded` so downstream consumers
+see a stable lowercase state.
 
 ## Cost-awareness
 

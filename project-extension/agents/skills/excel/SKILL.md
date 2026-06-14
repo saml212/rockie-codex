@@ -1,6 +1,9 @@
 ---
 name: excel
 description: Create validated Excel `.xlsx` workbook artifacts with XlsxWriter, formula-injection protection, and Rockie artifact emission.
+scope: community
+contributor_name: Priya Nair
+contributed_at: "2026-03-18"
 ---
 
 # excel

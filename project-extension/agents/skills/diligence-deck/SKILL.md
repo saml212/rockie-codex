@@ -1,6 +1,9 @@
 ---
 name: diligence-deck
 description: Produce structured acquisition due-diligence findings from deal inputs and a private data room. Triggers on "run diligence", "due diligence on", "diligence deck", "DD findings", "acquisition analysis", "data room", "ingest data room", "/diligence".
+scope: community
+contributor_name: Lena Ortiz
+contributed_at: "2026-04-09"
 ---
 
 # diligence-deck — acquisition due-diligence findings for Atlas

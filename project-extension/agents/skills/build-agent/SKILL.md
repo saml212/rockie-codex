@@ -1,6 +1,9 @@
 ---
 name: build-agent
 description: Lab composer command scaffold for `/build-agent <name>`. In Agent Builder A1 this only creates a lab-scoped draft agent record and opens that lab's agent detail route for editing. It does not build, run, evaluate, observe, or deploy agents yet.
+scope: community
+contributor_name: Theo Ramirez
+contributed_at: "2026-04-17"
 ---
 
 # build-agent - lab-scoped draft agent bootstrap

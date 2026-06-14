@@ -1,0 +1,5 @@
+Time = 0.01
+iteration 1 continuity residual = 1.0e-3 CFL = 0.42 drag = 0.11 integrated flux = 0.004
+iteration 2 continuity residual = 2.0e-5 CFL = 0.39 drag = 0.12 integrated flux = 0.0041
+boundary condition warnings = 1
+boundary condition warning: outlet pressure patch should be reviewed

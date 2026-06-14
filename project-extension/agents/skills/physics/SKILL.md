@@ -1,6 +1,9 @@
 ---
 name: physics
 description: Route physics simulation, modeling, validation, and research-compute requests across force fields, molecular dynamics, electronic structure, particle transport/collision, continuum multiphysics, plasma/PIC, nuclear/radiation, and astro/cosmology. Use open-source-first engines, refuse local heavyweight execution on the orchestrator, and attach physics dashboard monitoring profiles to run plans.
+scope: community
+contributor_name: Nikhil Rao
+contributed_at: "2026-05-28"
 ---
 
 # Physics Research Router
@@ -10,6 +13,10 @@ calculation, modeling, validation, input-deck generation, run monitoring,
 or result interpretation. Current skill discovery is top-level only, so
 the domain modules are routed references under `references/` rather than
 nested discoverable skills.
+
+Physics is a router by default, not a direct provisioner. If a user asks
+for direct monitor status without a bound underlying run owner, return
+`router_not_provisioner`. Executed-run monitoring belongs to the owning provisioner parent skill such as `experiment` or `inference-engineer`, not the physics router itself.
 
 ## First Steps
 

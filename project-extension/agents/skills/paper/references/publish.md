@@ -37,10 +37,10 @@ lab's runtime, the same path `/experiment` uses:
 
 ```bash
 # First render and approve a compile term sheet, then submit through /experiment.
-python3 ${OPENCLAW_SKILLS_DIR}/budget-term-sheet/scripts/quote_term_sheet.py \
+python3 ${OPENCLAW_SKILLS_DIR}/experiment/subskills/budget-term-sheet/scripts/quote_term_sheet.py \
     --job-spec-json /tmp/latex-compile-job.json \
     > /tmp/latex-compile.term-sheet.json
-python3 ${OPENCLAW_SKILLS_DIR}/budget-term-sheet/scripts/render_term_sheet.py \
+python3 ${OPENCLAW_SKILLS_DIR}/experiment/subskills/budget-term-sheet/scripts/render_term_sheet.py \
     --term-sheet-json /tmp/latex-compile.term-sheet.json
 # wait for explicit approve / modify / cancel in chat, save the approved artifact, then:
 python3 ${OPENCLAW_SKILLS_DIR}/experiment/runtime/submit.py \

@@ -859,6 +859,13 @@ def test_active_poll_appends_heartbeat_state_log_and_unavailable_metric():
     append_kwargs = appended[0][1]
     assert append_kwargs["job_id"] == "job-poll"
     assert append_kwargs["status_patch"]["job_state"] == "RUNNING"
+    assert append_kwargs["status_patch"]["monitor_owner"] == "experiment"
+    assert append_kwargs["status_patch"]["monitor_target"] == {"kind": "job", "id": "job-poll"}
+    assert append_kwargs["status_patch"]["state"] == "running"
+    assert append_kwargs["status_patch"]["utilization"]["state"] == "unavailable"
+    assert append_kwargs["status_patch"]["utilization"]["reason_code"] == "telemetry_not_exposed"
+    assert append_kwargs["status_patch"]["spend"]["state"] == "unavailable"
+    assert append_kwargs["status_patch"]["spend"]["reason_code"] == "spend_not_exposed"
     assert "cost_so_far_cents" not in append_kwargs["status_patch"]
     assert append_kwargs["metrics"] == [
         {
@@ -874,6 +881,9 @@ def test_active_poll_appends_heartbeat_state_log_and_unavailable_metric():
     assert append_kwargs["verdicts"][0]["verdict"] == "continue"
     assert len(finalized) == 1
     assert finalized[0][1]["outcome"] == "success"
+    assert finalized[0][1]["status_patch"]["monitor_target"] == {"kind": "job", "id": "job-poll"}
+    assert finalized[0][1]["status_patch"]["spend"]["state"] == "live"
+    assert finalized[0][1]["status_patch"]["spend"]["reason_code"] is None
 
 
 def test_active_poll_retries_heartbeat_after_failed_append():
@@ -1179,6 +1189,41 @@ def test_poll_without_dashboard_note_id_performs_no_dashboard_mutations():
     finalize.assert_not_called()
 
 
+def test_terminal_cost_actual_only_finalize_uses_settled_spend():
+    submit_mod = load_submit_mod()
+    finalizations = []
+    job = {
+        "id": "job-settled",
+        "state": "DONE",
+        "gpu_count": 1,
+        "gpu_type": "A100_80GB",
+        "cost_actual_cents": 321,
+        "last_log_line": "done",
+    }
+
+    with mock.patch.object(submit_mod, "get_job", return_value=job):
+        with mock.patch.object(submit_mod, "append_dashboard") as append:
+            with mock.patch.object(
+                submit_mod,
+                "finalize_dashboard",
+                side_effect=lambda *args, **kwargs: finalizations.append((args, kwargs)),
+            ):
+                stdout = io.StringIO()
+                with contextlib.redirect_stdout(stdout):
+                    exit_code = submit_mod.poll(
+                        "job-settled",
+                        quiet=True,
+                        dashboard_note_id="note:settled",
+                    )
+
+    assert exit_code == 0
+    append.assert_not_called()
+    assert len(finalizations) == 1
+    assert finalizations[0][1]["status_patch"]["spend"]["state"] == "settled"
+    assert finalizations[0][1]["status_patch"]["spend"]["reason_code"] is None
+    assert finalizations[0][1]["status_patch"]["spend"]["reason"] is not None
+
+
 def test_dashboard_mutation_failures_warn_without_masking_job_exit(capsys):
     submit_mod = load_submit_mod()
     requests = []
@@ -1366,3 +1411,37 @@ def _approved_term_sheet():
             "approved_for_submit": True,
         },
     }
+
+
+if __name__ == "__main__":
+    import inspect
+    import tempfile
+    from types import SimpleNamespace
+
+    class _Capsys:
+        def __init__(self, stdout: io.StringIO, stderr: io.StringIO) -> None:
+            self._stdout = stdout
+            self._stderr = stderr
+
+        def readouterr(self):
+            return SimpleNamespace(out=self._stdout.getvalue(), err=self._stderr.getvalue())
+
+    tests = [
+        obj
+        for name, obj in globals().items()
+        if name.startswith("test_") and callable(obj)
+    ]
+    for test in sorted(tests, key=lambda fn: fn.__name__):
+        kwargs = {}
+        signature = inspect.signature(test)
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        for name in signature.parameters:
+            if name == "tmp_path":
+                tempdir = tempfile.TemporaryDirectory()
+                kwargs[name] = Path(tempdir.name)
+            elif name == "capsys":
+                kwargs[name] = _Capsys(stdout, stderr)
+        with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+            test(**kwargs)
+    print(f"OK - {len(tests)} experiment submit checks passed")

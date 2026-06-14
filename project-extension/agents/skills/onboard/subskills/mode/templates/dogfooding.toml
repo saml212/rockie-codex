@@ -1,0 +1,26 @@
+# dogfooding — for working on rockie itself, or a fresh user testing
+# the harness. Tight budgets, fast cycles, gates loosened.
+name = "dogfooding"
+description = "Harness self-modification or first-run testing. Small budgets, fast cycles."
+
+[hardware]
+spot_only = true
+on_demand_allowed = false
+gpu_budget_dollars_per_session = 10
+
+[reading]
+recency_window_months = 3   # dogfood moves fast; only very-recent harness papers
+
+[risk]
+sanity_check_above_dollars = 5
+session_max_dollars = 15
+require_smoke_before_real_run = true
+
+[output]
+register = "code-comment"
+
+[workflow]
+scope_lock = false
+require_clean_before_commit = true   # dogfooding still respects cleanliness
+require_audit_subagent_before_train = false
+prefer_sonnet_for = ["fix-list", "smoke-test-extension", "research-collation"]

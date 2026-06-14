@@ -1,0 +1,39 @@
+# paper-crunch — for the final stretch before a paper deadline.
+# Optimized for: ship existing direction, avoid scope creep, gate every
+# real run, route reviewer-quality work through Opus.
+name = "paper-crunch"
+description = "Deadline-locked. Scope-locked. Smoke + audit gates active. Opus on attack/review."
+
+[hardware]
+hardware_type = "H100"
+spot_only = true
+on_demand_allowed = false
+gpu_budget_dollars_per_session = 50
+
+[reading]
+recency_window_months = 6
+prefer_venues = ["ICML", "NeurIPS", "ICLR", "ICML-Workshop", "NeurIPS-Workshop"]
+
+[methodology]
+required_ablations = ["param-matched-flat", "seed-variance-3min"]
+allow_negative_result = true
+
+[risk]
+sanity_check_above_dollars = 10
+session_max_dollars = 80
+require_smoke_before_real_run = true
+
+[output]
+register = "formal-paper"
+
+[workflow]
+scope_lock = true
+require_clean_before_commit = true
+require_audit_subagent_before_train = true
+prefer_opus_for = ["attack", "novelty-check", "paper-review", "audit"]
+prefer_sonnet_for = ["fix-list", "research-collation", "boilerplate"]
+
+[deadline]
+# Set explicitly when activating: /mode edit paper-crunch
+# target_date = "YYYY-MM-DD"
+scope_lock = true

@@ -26,7 +26,7 @@ Both routes converge on the same 8-step orchestration below.
 
 If this skill needs Rockie-managed training, eval, synthetic-data, or
 other GPU job execution outside `POST /api/inference/loads`, route that
-work through `/experiment` and its `/budget-term-sheet` approval gate.
+work through `/experiment` and its embedded budget-term-sheet approval gate.
 Do not introduce raw `/api/jobs/submit` calls here.
 
 ## Read this before doing anything
@@ -183,6 +183,22 @@ Dashboard Note boundary:
   the nearest control-plane writer and freeze the snapshot at launch time.
 - Default to `inference.batch_baseline.v1` unless a more specific domain
   profile is attached by the parent research skill.
+- Parent-owned monitoring for these served loads must normalize to the
+  shared monitor envelope with `monitor_owner: "inference-engineer"`,
+  `monitor_target.kind: "load"`, the load id in `monitor_target.id`,
+  and explicit `utilization` / `spend` state blocks. Source monitoring data from load status, endpoint status, and frozen dashboard metadata only. If live utilization is absent, return
+  `utilization.state: "unavailable"` with
+  `reason_code: "telemetry_not_exposed"`. Treat
+  `cost_so_far_cents` as observed spend. Budget caps or hourly-rate
+  guidance without observed spend must not look live; return
+  `spend.state: "partial"` with `reason_code: "spend_budget_only"`.
+  If no spend signals are exposed at all, return
+  `spend.state: "unavailable"` with `reason_code: "spend_not_exposed"`.
+  If a future surface exposes terminal actual spend without live
+  accumulation, normalize it as `spend.state: "settled"` with a null
+  `reason_code` rather than `live`.
+  Do not invent per-GPU telemetry or spend observations that the load
+  surfaces do not expose.
 
 Returns `{ id: <load_id>, state: "queued", ... }`. Echo the load_id to the user and tell them they can stop at any time with `/inference-engineer stop <load_id>` (which translates to a `POST /api/inference/loads/<id>/cancel`). Explicit stop/cancel is final for the served endpoint: it tears down the GPU, Cloudflare tunnel, DNS record, endpoint registration, and bearer cache even when the load was created with `keep_running: true`.
 

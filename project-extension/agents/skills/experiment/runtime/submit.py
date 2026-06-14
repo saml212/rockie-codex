@@ -54,6 +54,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
+from monitor_contract import normalize_monitor_envelope
 from monitoring_profiles import infer_software, resolve_profile_snapshot
 
 
@@ -585,9 +586,16 @@ def _dashboard_error_body(error: str) -> bytes:
 
 
 def _dashboard_status_patch(job: dict[str, Any], *, final: bool = False) -> dict[str, Any]:
+    monitor = normalize_monitor_envelope(job)
     patch: dict[str, Any] = {
         "job_state": job.get("state"),
         "log_state": "available" if job.get("last_log_line") else "unavailable",
+        "monitor_owner": monitor["monitor_owner"],
+        "monitor_target": monitor["monitor_target"],
+        "state": monitor["state"],
+        "utilization": monitor["utilization"],
+        "spend": monitor["spend"],
+        "artifacts": monitor["artifacts"],
     }
     for key in ("cost_actual_cents", "cost_so_far_cents"):
         if job.get(key) is not None:
@@ -692,11 +700,12 @@ def _dashboard_events(
 
 
 def _unavailable_telemetry_metrics() -> list[dict[str, Any]]:
+    monitor = normalize_monitor_envelope({})
     return [
         {
             "name": "gpu_utilization",
-            "state": "unavailable",
-            "reason_code": "telemetry_not_exposed",
+            "state": monitor["utilization"]["state"],
+            "reason_code": monitor["utilization"]["reason_code"],
             "summary": "GPU utilization telemetry is unavailable from the job status API.",
         }
     ]
